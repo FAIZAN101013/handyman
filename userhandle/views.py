@@ -24,19 +24,31 @@ import re
 
 # index checks if the user is authenticated and what is the tag user has ( handyman or customer )
 # and accordingly redirects them to eithsearch page or the index page with has profile and searvice functions
-def index(request):  
+# home always renders the public landing page (hero + service search),
+# regardless of role — the role-specific dashboard stays on index at '/'
+def home(request):
+    return render(request, 'search.html')
+
+
+def index(request):
     a = {}
     if request.user.is_authenticated:
         if request.user.is_customer:
-            return redirect('handyman-search')
-        elif request.user.is_FixR:            
+            return redirect('home')
+        elif request.user.is_FixR:
             services = Booked.objects.all().filter(FixR_id=request.user.id, is_accepted=False, is_declined=False)
-            current_time = datetime.datetime.now().time()             
+            current_time = datetime.datetime.now().time()
             if len(services) == 0:
                 service_flag = True
             elif len(services)>=1:
                 service_flag = False
-            context = {'services':services, 'current_time':current_time, 'service_flag':service_flag}
+            completed_jobs = Booked.objects.filter(FixR_id=request.user.id, is_completed=True).count()
+            context = {
+                'services': services,
+                'current_time': current_time,
+                'service_flag': service_flag,
+                'completed_jobs': completed_jobs,
+            }
             return render(request, "index.html", context)
         return render(request, "index.html")
     else:
@@ -90,7 +102,7 @@ def handyman_rating_view(request, id, booking_id):
 # pushed to the HandymanRegisterForm and then saved in the database  
 def HandymanRegister(request):
     form = HandymanRegisterform()
-    special_character = "[()[\]{}|\\`~!@#$%^&*_\-+=;:\',<>./?]"
+    special_character = r"[()[\]{}|\\`~!@#$%^&*_\-+=;:',<>./?]"
     if request.method == "POST":
         firstname = request.POST['firstname']
         lastname = request.POST['lastname']
@@ -106,7 +118,7 @@ def HandymanRegister(request):
         elif len(password2) < 8:
             messages.error(request, 'Password should be atleast 8 characters. ')   
             return render(request, 'registration.html') 
-        elif not re.findall('\d', password2):
+        elif not re.findall(r'\d', password2):
             messages.error(request, 'Your password must contain a numeric value.')
             return render(request, 'registration.html')
         elif not re.findall('[A-Z]', password2):
@@ -227,6 +239,10 @@ class ProfileEditViewCustomer(UpdateView):
 # In the end it displays two instead of one list 
 # The another list is of handymans with all service and all category in their profile
 # both of the lists exclude if the user has customer or superuser flag
+from .serviceview import customer_only
+
+
+@customer_only
 def HandymaSearch(request):
     services = request.POST.get('services')
     postcode = request.POST.get('zipcode')
@@ -286,7 +302,8 @@ def HandymaSearch(request):
 # tags help handyman to be found easily
 # in SearchTags using the post.get method value of tag is saved and filtered through data base for a maching query
 # tags go through handyman's category, tags, services and description and generated the best result
-def SearchTags(request):    
+@customer_only
+def SearchTags(request):
     if request.method == "POST":
         tags = request.POST.get('tags')
         services = request.POST.get('services')
@@ -323,6 +340,7 @@ def SearchTags(request):
 
 # fetch an user with id from the data base 
 # this id is taken from the html page
+@customer_only
 def SearchDetailView(request, id):
     from .forms import ServiceBookingForm
     user = request.user

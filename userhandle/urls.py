@@ -13,6 +13,7 @@ from .serviceview import serviceurlpattern
 # )
 urlpatterns = [
     path('', views.index, name='index'),
+    path('home/', views.home, name='home'),
     path('login/', views.HandymanLogin, name='handyman-login'),
     path('logout/', views.HandymanLogout, name='handyman-logout'),
     path('registration/', views.HandymanRegister, name="handyman-registration"),

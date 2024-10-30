@@ -1,12 +1,23 @@
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from .models import HandymanUser
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import path
-from django.db.models import Q
+from functools import wraps
 
 
+# Handymen (FixR) should never see the customer-facing browse/booking pages —
+# send them to their dashboard instead.
+def customer_only(view):
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_FixR:
+            return redirect('index')
+        return view(request, *args, **kwargs)
+    return wrapper
 
+
+@customer_only
 def General(request):
     allservicelist = HandymanUser.objects.filter(
             Q(is_superuser=False),
@@ -28,6 +39,7 @@ def General(request):
 
 
 
+@customer_only
 def Furniture(request):
     allservicelist = HandymanUser.objects.filter(
             Q(is_superuser=False),
@@ -51,6 +63,7 @@ def Furniture(request):
     return render(request, 'search_result.html', context)
 
 
+@customer_only
 def Moving(request):
     allservicelist = HandymanUser.objects.filter(
             Q(is_superuser=False),
@@ -70,6 +83,7 @@ def Moving(request):
     return render(request, 'search_result.html', context)
 
 
+@customer_only
 def Mounting(request):
     allservicelist = HandymanUser.objects.filter(
             Q(is_superuser=False),
@@ -90,6 +104,7 @@ def Mounting(request):
     return render(request, 'search_result.html', context)
     
 
+@customer_only
 def Painting(request):
     allservicelist = HandymanUser.objects.filter(
             Q(is_superuser=False),
@@ -113,6 +128,7 @@ def Painting(request):
 
 
     
+@customer_only
 def disinfecting_services(request):
     allservicelist = HandymanUser.objects.filter(
           
@@ -135,6 +151,7 @@ def disinfecting_services(request):
 
 
 
+@customer_only
 def ikea_services(request):
     allservicelist = HandymanUser.objects.filter(
             Q(handyman_services="All Services")& 
@@ -153,6 +170,7 @@ def ikea_services(request):
     return render(request, 'search_result.html', context)
 
 
+@customer_only
 def all_services(request):
     
     services = HandymanUser.objects.all().filter(is_superuser=False).exclude(is_customer=True)
@@ -165,65 +183,65 @@ def all_services(request):
 
 
 
+@customer_only
 def lowpricehandyman(request):
     services = HandymanUser.objects.filter(price__lte=10)
-    print(services)
     allservicelist = '' 
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
 
 
+@customer_only
 def highpricehandyman(request):
     services = HandymanUser.objects.filter(price__gte=50)
-    print(services)
     allservicelist = '' 
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
 
 
+@customer_only
 def mediumpricehandyman(request):
     services = HandymanUser.objects.all().filter(
         Q(price__gte=10)& Q(price__lte=50)& Q(is_FixR=True) & Q(is_customer=False) & 
         Q(is_superuser=False))
-    print(services)
     allservicelist = '' 
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
 
 
+@customer_only
 def lowratinghandyman(request):
     services = HandymanUser.objects.all().filter(
         Q(is_FixR=True) & Q(is_customer=False) & 
         Q(is_superuser=False) & Q(handyman_rating__lte=2)
     )
-    print(services)
     allservicelist = '' 
     context = {'servicelist':services, 'allservicelist': allservicelist}
 
     return render(request, 'search_result.html', context)
 
 
+@customer_only
 def mediumratinghandyman(request):
     services = HandymanUser.objects.all().filter(
         Q(is_FixR=True) & Q(is_customer=False) & 
         Q(is_superuser=False) & Q(handyman_rating__gte=2) 
         & Q(handyman_rating__lte=3.5)
     )
-    print(services)
     allservicelist = '' 
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
 
+@customer_only
 def highratinghandyman(request):
     services = HandymanUser.objects.all().filter(
         Q(is_FixR=True) & Q(is_customer=False) & 
         Q(is_superuser=False) & Q(handyman_rating__gte=3.5)
     )
-    print(services)
     allservicelist = '' 
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
