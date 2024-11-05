@@ -1,306 +1,160 @@
-{% load static  %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kwik FixR</title>
-    <link rel="stylesheet" href="{% static 'style/style.css' %}" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'bootstrap-float-label-master/bootstrap-float-label.min.css' %}"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <script
-      src="https://kit.fontawesome.com/64bb69d5a5.js"
-      crossorigin="anonymous"
-    ></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
+{% extends 'base.html' %}
+{% load static %}
 
+{% block title %}Dashboard — Handy Man{% endblock %}
 
-    {% if messages %}
+{% block content %}
+<div class="mb-4">
+  <h2 class="fw-bold mb-1" style="color: #173e59;">Hello, {{ user.firstname }} 👋</h2>
+  <p class="text-muted mb-0">{% now "l, j F Y" %}</p>
+</div>
 
-    {% for message in messages %}
-    {% if message.tags %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    {% endif %}
-    {% endfor %}
-    
-    {% endif %}
-
-    
-    <nav
-      class="navbar navbar-expand-md bg-light navbar-light"
-      style="padding: 10px 70px 10px 70px !important;"
-
-    >
-      <a class="navbar-brand" href="{% url 'index' %}">Handy Man</a>
-
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#collapsibleNavbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav ml-auto">
-          {% if user.is_authenticated and user.is_customer %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'previous-booking' %}">My Bookings</a>
-          </li>
-          {% endif %}
-
-          <li class="nav-item dropdown">
-            <div class="nav-item dropdown">
-              <a
-                href="#"
-                class="nav-link dropdown-toggle"
-                data-toggle="dropdown"
-                >Services</a
-              >
-              <div class="dropdown-menu">
-                <a href="{% url 'general-handyman' %}" class="dropdown-item">General Handyman</a>
-                <a href="{% url 'furniture-assembly' %}" class="dropdown-item">Furniture Assembly</a>
-                <a href="{% url 'help-moving' %}" class="dropdown-item">Help Moving</a>
-                <a href="{% url 'tv-mounting' %}" class="dropdown-item">TV Mounting</a>
-                <a href="{% url 'painting' %}" class="dropdown-item">Painting</a>
-                <a href="{% url 'disinfecting-services' %}" class="dropdown-item">Disinfecting Services</a>
-                <a href="{% url 'ikea-services' %}" class="dropdown-item">IKEA Services</a>
-                <a href="{% url 'all-services' %}" class="dropdown-item">All Services</a>
-      
-            </div>
-            </div>
-          </li>
-          {% if user.is_anonymous %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'handyman-login' %}">Sign up / Log in</a>
-          </li>
-          
-        {% elif user.is_authenticated %}
-
-        <li class="nav-item dropdown">
-          <style>
-            .avatar {
-              vertical-align: middle;
-              width: 30px;
-              height: 30px;
-              border-radius: 50%;
-            }
-            </style>
-          
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% if user.handyman_image %}
-            <img src="{{user.handyman_image.url}}" alt="Avatar" class="avatar">
-            {{user}}
+<!-- Business at a glance -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card hm-card h-100">
+      <div class="card-body py-3">
+        <p class="hm-meta-label mb-1">Your rating</p>
+        <div class="hm-stars">
+          {% for i in "12345"|make_list %}
+            {% if user.handyman_rating >= forloop.counter %}
+              <i class="fa-solid fa-star"></i>
+            {% elif user.handyman_rating >= forloop.counter0|add:"0.5" %}
+              <i class="fa-solid fa-star-half-stroke"></i>
             {% else %}
-            <img src="{% static 'img/default_profile.png' %}" alt="Avatar" class="avatar">
-            {{user}}
-          </a>
-          {% endif %}
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              {% if user.is_FixR %}
-              <a class="dropdown-item" href="{% url 'handyman-profile' user.id %}">Profile</a>
-              {% elif user.is_customer %}
-              <a class="dropdown-item" href="{% url 'customer-profile' user.id %}">Profile</a>
-              {% endif %}
-              <a class="dropdown-item" href="{% url 'handyman-logout' %}">Logout</a>
-            </div>
-          </li>
-          {% endif %}
-        </ul>
+              <i class="fa-regular fa-star"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <span class="hm-meta-value fs-5">{{ user.handyman_rating }}</span>
       </div>
-    </nav>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card hm-card h-100">
+      <div class="card-body py-3">
+        <p class="hm-meta-label mb-1">Reviews</p>
+        <span class="hm-meta-value fs-3">{{ user.handyman_rating_count }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card hm-card h-100">
+      <div class="card-body py-3">
+        <p class="hm-meta-label mb-1">Jobs completed</p>
+        <span class="hm-meta-value fs-3">{{ completed_jobs|default:"0" }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card hm-card h-100">
+      <div class="card-body py-3">
+        <p class="hm-meta-label mb-1">Your rate</p>
+        <span class="hm-meta-value fs-3">
+          {% if user.price %}&pound;{{ user.price }}<small class="fs-6 fw-normal text-muted">/hr</small>{% else %}—{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <div class="wrapper">
-      <div class="row" style="margin: 0px">
-        <nav id="sidebar">
+<!-- Suggestions to get more bookings -->
+{% if not user.handyman_image or not user.bio or not user.price or not user.postcode or not user.service_tags %}
+  <div class="card hm-card mb-4" style="border-left: 4px solid #f5b301;">
+    <div class="card-body py-3">
+      <p class="fw-semibold mb-2" style="color: #173e59;">
+        <i class="fas fa-lightbulb text-warning me-2"></i>Suggestions to get more bookings
+      </p>
+      <ul class="mb-0 small text-muted">
+        {% if not user.handyman_image %}
+          <li>Add a <a href="{% url 'handyman-profile' user.id %}">profile photo</a> — customers book faces they can see.</li>
+        {% endif %}
+        {% if not user.bio %}
+          <li>Write a short <a href="{% url 'handyman-profile' user.id %}">bio</a> about your experience and skills.</li>
+        {% endif %}
+        {% if not user.price %}
+          <li>Set your <a href="{% url 'handyman-profile' user.id %}">hourly rate</a> so customers know what to expect.</li>
+        {% endif %}
+        {% if not user.service_tags %}
+          <li>Add <a href="{% url 'handyman-profile' user.id %}">service tags</a> so you show up in more searches.</li>
+        {% endif %}
+        {% if not user.postcode %}
+          <li>Add your postcode so nearby customers can find you.</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+{% endif %}
 
-          <ul class="list-unstyled components">
-            <li class="sidebar_item">
-              <a href="{% url 'index' %}" aria-expanded="false" class="active"
-                ><i class="fa-solid fa-layer-group"></i>SERVICE REQUESTS</a
-              >
-            </li>
-            {% if user.is_authenticated %}
-            {% if user.is_customer %}
-            <li class="sidebar_item">
-              <a href="{% url 'customer-profile' user.id %}" class="dropdown-toggle"
-                ><i class="fa-solid fa-image"></i>MY ACCOUNT</a
-              >
-            </li>
-            {% elif user.is_FixR %}
-            <li class="sidebar_item">
-              <a href="{% url 'handyman-profile' user.id %}" class="dropdown-toggle"
-                ><i class="fa-solid fa-image"></i>MY ACCOUNT</a
-              >
-            </li>
-            {% endif %}
-            <li class="sidebar_item">
-              <a href="{% url 'handyman-logout' %}" class="dropdown-toggle"
-                ><i class="fa-solid fa-table-list"></i>LOGOUT</a
-              >
-            </li>
-            {% endif %}
-          </ul>
-        </nav>
-        <div class="top-nav">
-          {% if user.is_authenticated %}
-          <div class="row mt-5" style="margin: 0px">
-            <div class="content col-12 mt-3">
-              <p class="content-text">Hello {{user.firstname}}!</p>
-              <h1 class="content-header">{{current_time}}</h1>
-              <p class="content-text1">
-                "When you have more than you need, build a longer table not a<br />
-                higher fence."
-              </p>
-              <p style="font-size: 13px; font-weight: bold">- Unknown</p>
-              <div class="content-item">
-                <div class="row content-menu">
-                  <a
-                    href="{% url 'index' %}"
-                    style="border-bottom: 2px solid #1a76b0; color: #1a76b0"
-                    >NEW REQUESTS</a
-                  ><a href="{% url 'service-approved' %}">APPROVED</a>
-                  <hr class="hr" />
-                </div>
-              
-                {% for service in services %} 
-                {% if service.service_images %}
-                <div class="content-item-list">
-                  {% if service.customer.handyman_image %}
-                  <img
-                    class="content-item-img"
-                    src="{{service.customer.handyman_image.url}}"
-                    alt=""
-                  />
-                  {% else %}
-                  <img
-                    class="content-item-img"
-                    src="{% static 'img/default_profile.png' %}"
-                    
-                  />
-                  {% endif %}
-                  <p class="content-item-text">{{service.customer}}</p>
-                  <p class="content-item-text1">{{service.date_time_created}}</p>
-                  <p class="content-item-date">
-                    <span>Date</span><br />
-                    {{service.duedate}}
-                  </p>
-                  <p class="content-item-time">
-                    <span>No. hours required</span><br />
-                    {{service.hoursneeded}} hrs
-                  </p>
-                  <p class="content-item-required">
-                    <span>Time</span><br />
-                    {{service.time}}
-                  </p>
-                  <h6 style="padding-left: 55px; margin-right: 500px">
-                    {{service.description}}
-                  </h6>
-                  <img
-                    class="content-item-img1"
-                    src="{{service.service_images.url}}"
-                    alt=""
-                  />
-                  <div class="buttons btn-action">
-                    <button class="btn-request"><a href="{% url 'handyman-accept' service.id %}">Accept</a></button
-                      ><button class="btn-request-1"><a href="{% url 'handyman-decline' service.id %}">Decline</a></button>
-                  </div>
-                </div>
-                {% else %}
-                <div class="content-item-list">
-                  {% if service.customer.handyman_image %}
-                  <img
-                    class="content-item-img"
-                    src="{{service.customer.handyman_image.url}}"
-                    alt=""
-                  />
-                  {% else %}
-                  <img
-                    class="content-item-img"
-                    src="{% static 'img/default_profile.png' %}"
-                    alt=""
-                  />
-                  {% endif %}
-                  <p class="content-item-text">{{service.customer}}</p>
-                  <p class="content-item-text1">{{service.date_time_created}}</p>
-                  <p class="content-item-date">
-                    <span>Date</span><br />
-                    {{service.duedate}}
-                  </p>
-                  <p class="content-item-time">
-                    <span>No. hours required</span><br />
-                    {{service.hoursneeded}} hrs
-                  </p>
-                  <p class="content-item-required">
-                    <span>Time</span><br />
-                    {{service.time}}
-                  </p>
-                  <h6 style="padding-left: 55px; margin-right: 500px">
-                    {{service.description}}
-                  </h6>
-    
-                  <div class="buttons1 btn-action btn-act">
-                    <a href="{% url 'handyman-accept' service.id %}" class="btn-request">Accept</a>
-                    <a href="{% url 'handyman-decline' service.id %}" class="btn-request-1">Decline</a>
-                  </div>
-                  
-                </div>
-                {% endif %}
-                {% endfor%}
-            
-                
-                
-                
-              </div>
-            </div>
-            
-          </div>
-          {% endif %}
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'index' %}">
+      New Requests
+      {% if services %}<span class="badge rounded-pill bg-primary ms-1">{{ services|length }}</span>{% endif %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'service-approved' %}">Approved</a>
+  </li>
+</ul>
+
+{% if service_flag %}
+  <div class="text-center py-5">
+    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+    <h5>No new requests right now</h5>
+    <p class="text-muted">New booking requests from customers will show up here.</p>
+  </div>
+{% endif %}
+
+{% for service in services %}
+  <div class="card hm-card mb-3">
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-3">
+        {% if service.customer.handyman_image %}
+          <img class="hm-avatar me-2" src="{{ service.customer.handyman_image.url }}" alt="{{ service.customer }}" />
+        {% else %}
+          <img class="hm-avatar me-2" src="{% static 'img/default_profile.png' %}" alt="{{ service.customer }}" />
+        {% endif %}
+        <div>
+          <div class="fw-semibold">{{ service.customer }}</div>
+          <small class="text-muted">Requested {{ service.date_time_created }}</small>
         </div>
       </div>
+
+      <div class="row g-3 align-items-center">
+        <div class="col-6 col-md-2">
+          <p class="hm-meta-label mb-0">Date</p>
+          <p class="hm-meta-value mb-0">{{ service.duedate }}</p>
+        </div>
+        <div class="col-6 col-md-2">
+          <p class="hm-meta-label mb-0">Time</p>
+          <p class="hm-meta-value mb-0">{{ service.time }}</p>
+        </div>
+        <div class="col-6 col-md-2">
+          <p class="hm-meta-label mb-0">Duration</p>
+          <p class="hm-meta-value mb-0">{{ service.hoursneeded }} hrs</p>
+        </div>
+        <div class="col-12 col-md-4">
+          <p class="hm-meta-label mb-0">Description</p>
+          <p class="mb-0">{{ service.description }}</p>
+        </div>
+        {% if service.service_images %}
+          <div class="col-12 col-md-2 text-md-end">
+            <img class="hm-service-photo" src="{{ service.service_images.url }}" alt="Job photo" />
+          </div>
+        {% endif %}
+      </div>
+
+      <hr />
+      <div class="d-flex justify-content-end gap-2">
+        <a href="{% url 'handyman-decline' service.id %}" class="btn btn-outline-secondary">
+          <i class="fas fa-times me-1"></i>Decline
+        </a>
+        <a href="{% url 'handyman-accept' service.id %}" class="btn hm-btn-primary">
+          <i class="fas fa-check me-1"></i>Accept
+        </a>
+      </div>
     </div>
-
-    <script>
-      $(document).ready(function () {
-        $("#sidebarCollapse").on("click", function () {
-          $("#sidebar").toggleClass("active");
-        });
-      });
-    </script>
-  </body>
-</html>
-
-
-
-
-
-
-
-
+  </div>
+{% endfor %}
+{% endblock %}
