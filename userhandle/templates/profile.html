@@ -2,162 +2,137 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+{% block title %}My Profile — Handy Man{% endblock %}
+
 {% block content %}
-<div class="profile-container">
-    <div class="container">
-        <!-- Profile Header -->
-        <div class="profile-header">
-            <div class="profile-avatar-container">
-                {% if user.handyman_image %}
-                    <img src="{{ user.handyman_image.url }}" alt="{{ user.username }}" class="profile-avatar" id="preview-avatar">
-                {% else %}
-                    <img src="{% static 'img/default_profile.png' %}" alt="Default Profile" class="profile-avatar" id="preview-avatar">
-                {% endif %}
-                <label for="profile-image-upload" class="profile-avatar-upload" title="Change profile picture">
-                    <i class="fas fa-camera"></i>
-                </label>
-            </div>
-            <h1>Hi</h1>
-            <div class="profile-info">
-                <h1 class="profile-name">{{ user.firstname }} {{ user.lastname }}</h1>
-                <p class="profile-role">
-                    {% if user.is_FixR %}
-                        Professional Handyman
-                    {% elif user.is_customer %}
-                        Customer
-                    {% endif %}
-                </p>
-                {% if user.is_FixR %}
-                    <div class="profile-stats">
-                        <div class="profile-stat">
-                            <div class="profile-stat-value">{{ completed_jobs|default:"0" }}</div>
-                            <div class="profile-stat-label">Jobs Completed</div>
-                        </div>
-                        <div class="profile-stat">
-                            <div class="profile-stat-value">{{ rating|default:"0.0" }}</div>
-                            <div class="profile-stat-label">Rating</div>
-                        </div>
-                        <div class="profile-stat">
-                            <div class="profile-stat-value">{{ reviews_count|default:"0" }}</div>
-                            <div class="profile-stat-label">Reviews</div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Profile Content -->
-        <div class="profile-content">
-            <div class="profile-tabs">
-                <div class="profile-tab active">Personal Information</div>
-                <a href="{% url 'change-password' %}" class="profile-tab">Change Password</a>
-            </div>
-
-            <form method="post" enctype="multipart/form-data" id="profile-form">
-                {% csrf_token %}
-                
-                <!-- Hidden file input -->
-                <input type="file" id="profile-image-upload" name="handyman_image" accept="image/*" style="display: none;">
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="profile-section">
-                            <h3 class="profile-section-title">
-                                <i class="fas fa-user me-2"></i>Basic Information
-                            </h3>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">First Name</label>
-                                {{ form.firstname|as_crispy_field }}
-                            </div>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">Last Name</label>
-                                {{ form.lastname|as_crispy_field }}
-                            </div>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">Contact</label>
-                                {{ form.contact|as_crispy_field }}
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if user.is_FixR %}
-                    <div class="col-md-6">
-                        <div class="profile-section">
-                            <h3 class="profile-section-title">
-                                <i class="fas fa-tools me-2"></i>Professional Information
-                            </h3>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">Bio</label>
-                                {{ form.bio|as_crispy_field }}
-                            </div>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">Services</label>
-                                {{ form.handyman_services|as_crispy_field }}
-                            </div>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">Price</label>
-                                {{ form.price|as_crispy_field }}
-                            </div>
-                            <div class="profile-form-group">
-                                <label class="profile-form-label">Service Tags</label>
-                                {{ form.service_tags|as_crispy_field }}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="text-end mt-4">
-                    <button type="submit" class="profile-save-button">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                </div>
-            </form>
-        </div>
+<!-- Profile header -->
+<div class="hm-profile-header mb-4">
+  <div class="hm-profile-avatar-wrap mb-3">
+    {% if user.handyman_image %}
+      <img src="{{ user.handyman_image.url }}" alt="{{ user.firstname }}" class="hm-avatar-lg" id="preview-avatar">
+    {% else %}
+      <img src="{% static 'img/default_profile.png' %}" alt="Default profile" class="hm-avatar-lg" id="preview-avatar">
+    {% endif %}
+    <label for="profile-image-upload" class="hm-profile-avatar-upload" title="Change profile picture">
+      <i class="fas fa-camera"></i>
+    </label>
+  </div>
+  <h1 class="h3 fw-bold mb-1">{{ user.firstname }} {{ user.lastname }}</h1>
+  <p class="mb-0" style="color: rgba(255,255,255,0.85);">
+    {% if user.is_FixR %}
+      Professional Handyman
+    {% elif user.is_customer %}
+      Customer
+    {% endif %}
+  </p>
+  {% if user.is_FixR %}
+    <div class="hm-profile-stats">
+      <div>
+        <div class="hm-profile-stat-value">{{ user.handyman_rating|default:"0.0" }}</div>
+        <div class="hm-profile-stat-label">Rating</div>
+      </div>
+      <div>
+        <div class="hm-profile-stat-value">{{ user.handyman_rating_count|default:"0" }}</div>
+        <div class="hm-profile-stat-label">Reviews</div>
+      </div>
+      {% if user.price %}
+      <div>
+        <div class="hm-profile-stat-value">&pound;{{ user.price }}</div>
+        <div class="hm-profile-stat-label">Per hour</div>
+      </div>
+      {% endif %}
     </div>
+  {% endif %}
 </div>
 
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <span class="nav-link active">Personal Information</span>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'change-password' %}">Change Password</a>
+  </li>
+</ul>
+
+<form method="post" enctype="multipart/form-data" id="profile-form">
+  {% csrf_token %}
+
+  <!-- Hidden file input, triggered by the camera button in the header -->
+  <input type="file" id="profile-image-upload" name="handyman_image" accept="image/*" style="display: none;">
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card hm-card h-100">
+        <div class="card-body">
+          <h3 class="hm-section-title h6 mb-3">
+            <i class="fas fa-user me-2"></i>Basic Information
+          </h3>
+          {{ form.firstname|as_crispy_field }}
+          {{ form.lastname|as_crispy_field }}
+          {% if form.contact %}
+            {{ form.contact|as_crispy_field }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if user.is_FixR %}
+    <div class="col-md-6">
+      <div class="card hm-card h-100">
+        <div class="card-body">
+          <h3 class="hm-section-title h6 mb-3">
+            <i class="fas fa-tools me-2"></i>Professional Information
+          </h3>
+          {% if form.bio %}{{ form.bio|as_crispy_field }}{% endif %}
+          {% if form.handyman_services %}{{ form.handyman_services|as_crispy_field }}{% endif %}
+          {% if form.price %}{{ form.price|as_crispy_field }}{% endif %}
+          {% if form.service_tags %}{{ form.service_tags|as_crispy_field }}{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="text-end mt-4">
+    <button type="submit" class="btn hm-btn-primary px-4 py-2">
+      <i class="fas fa-save me-2"></i>Save Changes
+    </button>
+  </div>
+</form>
+
 <script>
-    // Handle profile image upload
-    document.querySelector('.profile-avatar-upload').addEventListener('click', function(e) {
+  // Camera button opens the hidden file input
+  document.querySelector('.hm-profile-avatar-upload').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('profile-image-upload').click();
+  });
+
+  // Preview the chosen image before upload
+  document.getElementById('profile-image-upload').addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      const preview = document.getElementById('preview-avatar');
+      reader.onload = function (e) { preview.src = e.target.result; };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  // Validate image size/type on submit
+  document.getElementById('profile-form').addEventListener('submit', function (e) {
+    const imageInput = document.getElementById('profile-image-upload');
+    if (imageInput.files.length > 0) {
+      const file = imageInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
         e.preventDefault();
-        document.getElementById('profile-image-upload').click();
-    });
-
-    // Preview image before upload
-    document.getElementById('profile-image-upload').addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            const preview = document.getElementById('preview-avatar');
-            
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-            };
-            
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // Form submission with image
-    document.getElementById('profile-form').addEventListener('submit', function(e) {
-        const imageInput = document.getElementById('profile-image-upload');
-        if (imageInput.files.length > 0) {
-            const file = imageInput.files[0];
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            
-            if (file.size > maxSize) {
-                e.preventDefault();
-                alert('Image size should be less than 5MB');
-                return;
-            }
-            
-            if (!file.type.startsWith('image/')) {
-                e.preventDefault();
-                alert('Please upload an image file');
-                return;
-            }
-        }
-    });
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        e.preventDefault();
+        alert('Please upload an image file');
+      }
+    }
+  });
 </script>
 {% endblock %}
-
