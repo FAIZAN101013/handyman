@@ -1,59 +1,37 @@
-{% extends "forms.html" %}
-{% load static %} 
+{% extends 'forms.html' %}
+{% load static %}
 
+{% block title %}Sign In — Handy Man{% endblock %}
 
 {% block body %}
+<div class="card hm-auth-card">
+  <div class="card-body p-4 p-md-5">
+    <h2 class="hm-section-title mb-1">Welcome back</h2>
+    <p class="text-muted mb-4">Sign in with your email address</p>
 
-<div class="col-12 h-100">
-  <div class="row h-100">
-    <div class="image h-100">
-      <img
-        src="{% static 'img/download.png' %}"
-        width="100%"
-        height="100%"
-        alt=""
-      />
-    </div>
-    <div class="fields-form-2">
-      <form action="{% url 'handyman-login' %}" method="post">
-        {% csrf_token %}
-
-        <h2>Sign In</h2>
-        <p>Sign in with Email Address</p>
-
-        <label class="form-group has-float-label">
-          <input
-            class="form-control"
-            type="email"
-            placeholder="email@example.com"
-            name="email"
-            required
-          />
-          <span>Email</span> </label
-        ><label class="form-group has-float-label">
-          <input
-            class="form-control"
-            type="password"
-            placeholder="********"
-            id="password-field"
-            name="password"
-            required />
-          <span>Password</span>
-          <i
-            toggle="#password-field"
-            class="fa fa-fw fa-eye field-icon toggle-password"
-          ></i
-        ></label>
-        <p class="pass-reset" style="cursor: pointer">Forgot password?</p>
-        <input class="sign-up mt-0" type="submit" value="SIGN IN" /> 
-        <p class="float-right mt-1">
-          Don't have an account?
-          <a href="{% url 'handyman-registration' %}">Sign up</a>
-        </p>         
-      </form>
-      
-    </div>
+    <form action="{% url 'handyman-login' %}" method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label" for="login-email">Email</label>
+        <input class="form-control" type="email" id="login-email" placeholder="email@example.com" name="email" required />
+      </div>
+      <div class="mb-2">
+        <label class="form-label" for="password-field">Password</label>
+        <div class="position-relative">
+          <input class="form-control pe-5" type="password" placeholder="********" id="password-field" name="password" required />
+          <i toggle="#password-field"
+             class="fa fa-fw fa-eye toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+             style="cursor: pointer;"></i>
+        </div>
+      </div>
+      <p class="pass-reset text-end mb-4" style="cursor: pointer;">
+        <small>Forgot password?</small>
+      </p>
+      <button class="btn hm-btn-primary w-100 py-2" type="submit">Sign In</button>
+      <p class="text-center mt-3 mb-0">
+        <small>Don't have an account? <a href="{% url 'handyman-registration' %}">Sign up</a></small>
+      </p>
+    </form>
   </div>
 </div>
-
 {% endblock %}
