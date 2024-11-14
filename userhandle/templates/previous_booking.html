@@ -1,263 +1,177 @@
-{% load static %} 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kwik FixR</title>
-    <link rel="stylesheet" href="{% static 'style/style.css' %}" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'bootstrap-float-label-master/bootstrap-float-label.min.css'%}"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <script
-      src="https://kit.fontawesome.com/64bb69d5a5.js"
-      crossorigin="anonymous"
-    ></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body style="background-color:rgba(42, 40, 40, 0);">
+{% extends 'base.html' %}
+{% load static %}
 
-    {% if messages %}
+{% block title %}My Bookings — Handy Man{% endblock %}
 
-    {% for message in messages %}
-    {% if message.tags %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    {% endif %}
-    {% endfor %}
-    
-    {% endif %}
-    
-    <nav
-      class="navbar navbar-expand-md bg-light navbar-light"
-      style="padding: 10px 70px 10px 70px !important"
-    >
-  
-      <a class="navbar-brand" href="{% url 'index' %}">Handy Man</a>
+{% block content %}
+<h2 class="hm-section-title mb-1">My Bookings</h2>
+<p class="text-muted mb-4">Click a booking to see its full details.</p>
 
-
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#collapsibleNavbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'previous-booking' %}">My Bookings</a>
-          </li>
-          <li class="nav-item dropdown">
-            <div class="nav-item dropdown">
-              <a
-                href="#"
-                class="nav-link dropdown-toggle"
-                data-toggle="dropdown"
-                >Services</a
-              >
-              <div class="dropdown-menu">
-                <a href="{% url 'general-handyman' %}" class="dropdown-item">General Handyman</a>
-                <a href="{% url 'furniture-assembly' %}" class="dropdown-item">Furniture Assembly</a>
-                <a href="{% url 'help-moving' %}" class="dropdown-item">Help Moving</a>
-                <a href="{% url 'tv-mounting' %}" class="dropdown-item">TV Mounting</a>
-                <a href="{% url 'painting' %}" class="dropdown-item">Painting</a>
-                <a href="{% url 'disinfecting-services' %}" class="dropdown-item">Disinfecting Services</a>
-                <a href="{% url 'ikea-services' %}" class="dropdown-item">IKEA Services</a>
-                <a href="{% url 'all-services' %}" class="dropdown-item">All Services</a>
-
-            </div>
-            </div>
-          </li>
-
-          {% if user.is_anonymous %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'handyman-login' %}">Sign up / Log in</a>
-          </li>
-          {% elif user.is_authenticated and user.is_customer%}
-
-          <li class="nav-item dropdown">
-            <style>
-              .avatar {
-                vertical-align: middle;
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-              }
-              </style>
-            
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {% if user.handyman_image %}
-              <img src="{{user.handyman_image.url}}" alt="Avatar" class="avatar">
-              {{user}}
-              {% else %}
-              <img src="{% static 'img/default_profile.png' %}" alt="Avatar" class="avatar">
-              {{user}}
-            </a>
-            {% endif %}
-            
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="{% url 'customer-profile' user.id %}">Profile</a>
-              <a class="dropdown-item" href="{% url 'handyman-logout' %}">Logout</a>
-            </div>
-          </li>
-          {% endif %}
-        </ul>
-      </div>
-    </nav>
-    <div class="wrapper"> 
-    
-
-      <hr class="hr3" />
-      <div class="search-filter">
-        <h3>My Bookings</h3>
-        
-        <div class="row type">
-
-          <div class="dropdown">
-            
-            
-          </div>
-        </div>
-        <div class="row range">
-
-          <div class="dropdown">
-
-          </div>
-        </div>
-
-      </div>
-
-      <!-- search result list  -->
-      
-      <div class="search-result">
-        {% for s in services %} 
-
-        <div class="search-result-list" style="height: 230px;">
+{% for s in services %}
+  <!-- Booking card (click opens details) -->
+  <div class="card hm-card hm-result-card mb-3" data-bs-toggle="modal" data-bs-target="#bookingModal{{ s.id }}" style="cursor: pointer;">
+    <div class="card-body">
+      <div class="row g-3 align-items-center">
+        <div class="col-auto">
           {% if s.FixR.handyman_image %}
-          <a href="">
-          <img 
-            class="search-result-img"
-            src="{{s.FixR.handyman_image.url}}"
-            alt=""
-          />
-        </a>
+            <img class="hm-avatar-lg" src="{{ s.FixR.handyman_image.url }}" alt="{{ s.FixR }}" />
           {% else %}
-          <a href="">
-            <img
-              class="search-result-img"
-              src="{% static 'img/default_profile.png' %}"
-              alt=""
-            />
-          </a>
+            <img class="hm-avatar-lg" src="{% static 'img/default_profile.png' %}" alt="{{ s.FixR }}" />
           {% endif %}
-          <h6 class="search-result-text">{{s.FixR}}</h6>
-          <p class="search-result-text2">
-            {% if s.is_completed and s.is_accepted %}
-            {% if s.is_reviewed is False %}
-            
-          <button class="btn btn-primary" style="background-color: rgb(9, 45, 135);;"><a href="{% url 'handyman-rating' s.FixR.id s.id %}" style="color:white; text-decoration:none;">Leave a review</a></button>
-            {% elif s.is_reviewed is True %}
-          <i class="fa-solid fa-star"></i>{{s.FixR.handyman_rating}}({{s.FixR.handyman_rating_count}} Reviews) <strong style="color: rgb(9, 9, 102);">Reviewed!</strong>
-            {% endif %}
-            {% else %}
-            <i class="fa-solid fa-star"></i>{{s.FixR.handyman_rating}}({{s.FixR.handyman_rating_count}} Reviews)
-            {% endif %}
+        </div>
+        <div class="col">
+          <h5 class="mb-1">{{ s.FixR }}</h5>
+          <p class="mb-1 text-muted">
+            <i class="fa-solid fa-star text-warning me-1"></i>{{ s.FixR.handyman_rating }} ({{ s.FixR.handyman_rating_count }} reviews)
           </p>
-          <hr width="0cm" style="height:00.1px;">
-          {% if s.FixR.postcode %}
-          <p class="search-result-text1">{{s.FixR.postcode}}</p>
+          <small class="text-muted">
+            <i class="fas fa-location-dot me-1"></i>{% if s.FixR.postcode %}{{ s.FixR.postcode }}{% else %}No address{% endif %}
+          </small>
+        </div>
+        <div class="col-6 col-md-2">
+          <p class="hm-meta-label mb-0">Price</p>
+          <p class="hm-meta-value mb-0">&pound;{% if s.FixR.price %}{{ s.FixR.price }}{% else %}40{% endif %}/hour</p>
+        </div>
+        <div class="col-6 col-md-2">
+          <p class="hm-meta-label mb-0">Booking date</p>
+          <p class="hm-meta-value mb-0">{{ s.duedate }}</p>
+        </div>
+        <div class="col-12 col-md-2 text-md-end">
+          {% if s.is_accepted and not s.is_completed %}
+            <span class="hm-status hm-status-accepted">Accepted</span>
+          {% elif s.is_declined %}
+            <span class="hm-status hm-status-declined">Declined</span>
+          {% elif s.is_completed and s.is_accepted %}
+            <span class="hm-status hm-status-completed">Completed</span>
           {% else %}
-          <p class="search-result-text1">No Address</p>
-          {%endif %}
-
-          {% if s.FixR.price %}
-          <div class="cost">
-            <p>Price</p>
-            <h6><b><span>&#163;</span> {{s.FixR.price}}</b></h6>
-          </div>
-          {% else %}
-          <div class="cost">
-            <p>Price</p>
-            <h6><b><span>&#163;</span> 40</b></h6>
-          </div>
+            <span class="hm-status hm-status-pending">Pending</span>
           {% endif %}
-          <div class="contact">
-            <p>Contact</p>
-            <h6><b>{{s.FixR.contact}}</b></h6>
-          </div>
-          <div class="member">
-            <p>Date of Booking</p>
-            <h6><b>{{s.duedate }}</b></h6>
-          </div>
-          <div class="services">
-            {% if s.is_accepted  and not s.is_completed%}
-            <p>Status</p>
-            <h6 style="color: green;"><b>Accepted</b></h6>
-            {% elif s.is_declined %}
-            <p>Status</p>
-            <h6 style="color: red;"><b>Declined</b></h6>
-            {% elif s.is_completed and s.is_accepted %}
-            <p>Status</p>
-            <h6 style="color: rgb(12, 26, 184);"><b>Completed</b></h6>
+        </div>
+      </div>
+
+      {% if s.is_completed and s.is_accepted and not s.is_reviewed %}
+        <hr />
+        <div class="text-end">
+          <a href="{% url 'handyman-rating' s.FixR.id s.id %}" class="btn hm-btn-primary btn-sm" onclick="event.stopPropagation()">
+            <i class="fa-solid fa-star me-1"></i>Leave a review
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Booking details modal -->
+  <div class="modal fade" id="bookingModal{{ s.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="border-radius: 1rem; border: 0;">
+        <div class="modal-header border-0 pb-0">
+          <div class="d-flex align-items-center gap-3">
+            {% if s.FixR.handyman_image %}
+              <img class="hm-avatar" src="{{ s.FixR.handyman_image.url }}" alt="{{ s.FixR }}" />
             {% else %}
-            <p>Status</p>
-            <h6 style="color: rgba(118, 118, 9, 0.721)"><b>Pending</b></h6>
+              <img class="hm-avatar" src="{% static 'img/default_profile.png' %}" alt="{{ s.FixR }}" />
+            {% endif %}
+            <div>
+              <h5 class="modal-title mb-0">Booking with {{ s.FixR }}</h5>
+              <small class="text-muted">Requested {{ s.date_time_created|date:"j M Y, H:i" }}</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body pt-3">
+          <div class="mb-3">
+            {% if s.is_accepted and not s.is_completed %}
+              <span class="hm-status hm-status-accepted"><i class="fas fa-check me-1"></i>Accepted — {{ s.FixR.firstname }} is coming</span>
+            {% elif s.is_declined %}
+              <span class="hm-status hm-status-declined"><i class="fas fa-times me-1"></i>Declined</span>
+            {% elif s.is_completed and s.is_accepted %}
+              <span class="hm-status hm-status-completed"><i class="fas fa-flag-checkered me-1"></i>Completed</span>
+            {% else %}
+              <span class="hm-status hm-status-pending"><i class="fas fa-hourglass-half me-1"></i>Waiting for {{ s.FixR.firstname }} to respond</span>
+            {% endif %}
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-6 col-md-3">
+              <p class="hm-meta-label mb-0">Date</p>
+              <p class="hm-meta-value mb-0">{{ s.duedate }}</p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="hm-meta-label mb-0">Time</p>
+              <p class="hm-meta-value mb-0">{{ s.time }}</p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="hm-meta-label mb-0">Duration</p>
+              <p class="hm-meta-value mb-0">{{ s.hoursneeded }} hrs</p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="hm-meta-label mb-0">Estimated cost</p>
+              <p class="hm-meta-value mb-0">
+                {% widthratio s.hoursneeded 1 s.FixR.price|default:40 as est %}
+                &pound;{{ est }}
+              </p>
+            </div>
+          </div>
+
+          {% if s.description %}
+            <p class="hm-meta-label mb-1">Task description</p>
+            <p class="mb-3">{{ s.description }}</p>
+          {% endif %}
+
+          {% if s.service_images %}
+            <p class="hm-meta-label mb-1">Task photo</p>
+            <img src="{{ s.service_images.url }}" alt="Task photo" class="img-fluid rounded mb-3" style="max-height: 260px;" />
+          {% endif %}
+
+          <div class="hm-estimate d-flex flex-wrap gap-4">
+            <div>
+              <p class="hm-meta-label mb-0">Handyman</p>
+              <p class="hm-meta-value mb-0">{{ s.FixR }}</p>
+            </div>
+            <div>
+              <p class="hm-meta-label mb-0">Rate</p>
+              <p class="hm-meta-value mb-0">&pound;{% if s.FixR.price %}{{ s.FixR.price }}{% else %}40{% endif %}/hour</p>
+            </div>
+            {% if s.is_accepted and s.FixR.contact %}
+              <div>
+                <p class="hm-meta-label mb-0">Contact</p>
+                <p class="hm-meta-value mb-0"><i class="fas fa-phone me-1"></i>{{ s.FixR.contact }}</p>
+              </div>
+            {% endif %}
+            {% if s.FixR.postcode %}
+              <div>
+                <p class="hm-meta-label mb-0">Area</p>
+                <p class="hm-meta-value mb-0">{{ s.FixR.postcode }}</p>
+              </div>
             {% endif %}
           </div>
         </div>
-       
-        
-        {% endfor %}
 
-
-        
-
-
+        <div class="modal-footer border-0">
+          {% if s.is_completed and s.is_accepted and not s.is_reviewed %}
+            <a href="{% url 'handyman-rating' s.FixR.id s.id %}" class="btn hm-btn-primary">
+              <i class="fa-solid fa-star me-1"></i>Leave a review
+            </a>
+          {% elif s.is_reviewed %}
+            <span class="text-muted me-auto"><i class="fas fa-check-circle text-success me-1"></i>You reviewed this booking</span>
+          {% endif %}
+          {% if not s.is_declined %}
+            <a href="{% url 'user-details' s.FixR.id %}" class="btn btn-outline-secondary">
+              <i class="fas fa-rotate-right me-1"></i>Book again
+            </a>
+          {% endif %}
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
       </div>
-    
-    <script>
-      $(document).ready(function () {
-        $("#sidebarCollapse").on("click", function () {
-          $("#sidebar").toggleClass("active");
-        });
-      });
-    </script>
-    <script>
-      $(".toggle-password").click(function () {
-        $(this).toggleClass("fa-eye fa-eye-slash");
-        var input = $($(this).attr("toggle"));
-        if (input.attr("type") == "password") {
-          input.attr("type", "text");
-        } else {
-          input.attr("type", "password");
-        }
-      });
-    </script>
-
-  </body>
-</html>
+    </div>
+  </div>
+{% empty %}
+  <div class="hm-status-page">
+    <div class="hm-status-icon text-muted"><i class="fas fa-calendar-xmark"></i></div>
+    <h5>No bookings yet</h5>
+    <p class="text-muted">When you book a handyman, your bookings will show up here.</p>
+    <a href="{% url 'home' %}" class="btn hm-btn-primary mt-2">Find a handyman</a>
+  </div>
+{% endfor %}
+{% endblock %}
