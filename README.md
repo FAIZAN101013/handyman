@@ -1,63 +1,88 @@
-# HandyMan Service Platform
+# Handy Man
 
-A **Django-based platform** that connects customers with skilled **handyman service providers** for a range of home maintenance and repair needs.
+A **Django platform** that connects customers with local handymen — search by
+service or postcode, book a pro, and track the job from request to review.
 
 [![Watch Demo](https://img.youtube.com/vi/N39ey6qDjQ8/0.jpg)](https://youtu.be/N39ey6qDjQ8)
 
 ---
 
-## 🚀 Features
+## Features
 
-- 🔐 User Authentication (Customers & Providers)
-- 👷 Service Provider Profiles with Ratings & Reviews
-- 📅 Booking System for Services
-- 📷 Image Uploads for Profiles & Listings
-- 📱 Responsive & Modern UI
-- ⭐ Rating and Review System
+**For customers**
+- 🔍 Search handymen by service, keyword, or postcode, with price and rating filters
+- 📅 Book with a task description, date, time, and photo — with a live price estimate
+- 📬 Email notifications when a handyman accepts or declines
+- 🗂 My Bookings with status tracking (pending / accepted / completed) and full-detail popups
+- ⭐ Rate and review handymen after the job is done
 
----
+**For handymen (FixRs)**
+- 📊 Dashboard with incoming requests, rating, review count, and jobs completed
+- 💡 Profile suggestions that show exactly what to add to win more bookings
+- ✅ Accept / decline requests, manage approved jobs, mark work complete
+- 👤 Profile with photo, bio, services, tags, and hourly rate
 
-## 🧰 Tech Stack
+**Platform**
+- 🔐 Role-based access — workers and customers each see only their own flow
+- 🎨 Responsive Bootstrap 5 UI with a shared design system
+- ✉️ Full password-reset flow via email
 
-- **Backend**: Django, Django REST Framework
-- **Database**: PostgreSQL (Production)
-- **Media Storage**: AWS S3
-- **Frontend**: HTML, CSS, JavaScript (Django Templates)
-- **Deployment**: Heroku, AWS
+## Tech Stack
 
----
+- **Backend:** Django 4.2, custom user model with role flags
+- **Frontend:** Django templates, Bootstrap 5, vanilla JS
+- **Database:** SQLite for development, PostgreSQL-ready via `DATABASE_URL`
+- **Deployment:** Gunicorn + WhiteNoise (Procfile included)
 
-## ✅ Prerequisites
+## Local Setup
 
-- Python 3.11+
-- PostgreSQL (for production)
+1. **Clone and enter the project**
 
+   ```bash
+   git clone https://github.com/FAIZAN101013/handyman.git
+   cd handyman
+   ```
 
----
+2. **Create a virtual environment and install dependencies**
 
-## ⚙️ Local Development Setup
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate        # Windows
+   # source venv/bin/activate   # macOS / Linux
+   pip install -r requirements.txt
+   ```
 
-1. **Clone the repository:**
-  
-   git clone <repository-url>
-   cd HandyMan
-2. Create and activate a virtual environment:
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+3. **Configure the environment**
 
-3. Install dependencies:
-  pip install -r requirements.txt
+   ```bash
+   copy .env.example .env       # Windows (cp on macOS/Linux)
+   ```
 
-Create a .env file:
-  cp .env.example .env
+   Then edit `.env` — at minimum set `DJANGO_SECRET_KEY` (generate one with
+   `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`).
+   With `DJANGO_DEBUG=True`, outgoing email prints to the console; for real
+   email, set `EMAIL_HOST_USER` and a Gmail **App Password**.
 
+4. **Migrate and run**
 
-# Then edit the file with your environment-specific values
-4. Apply migrations:
-  python manage.py migrate
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   python manage.py runserver
+   ```
 
-5. Create a superuser:
-  python manage.py createsuperuser
+   Open http://127.0.0.1:8000/ — sign up as a customer ("I want to hire"),
+   a handyman ("I want to work"), or both.
 
-6. Run the development server:
-  python manage.py runserver
+## Project Structure
+
+```
+handyman/
+├── Kwic_FixR_Main/      # Project settings, URLs, WSGI
+├── userhandle/          # App: models, views, forms, templates
+│   ├── templates/       # All pages (extend base.html)
+│   └── serviceview.py   # Service browse & filter views
+├── static/style/hm.css  # Design system
+├── .env.example         # Environment template — copy to .env
+└── Procfile             # Gunicorn entry point for deployment
+```
