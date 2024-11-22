@@ -59,47 +59,25 @@
 {% else %}
 <!-- Hero -->
 <section class="hm-hero text-center">
-  <h1>Home repairs, made easy</h1>
-  <p class="lead">
-    Book trusted local professionals for everything from furniture assembly
-    to painting — in minutes.
-  </p>
+  {% if user.is_anonymous %}
+    <h1>Get it done — or get paid to do it.</h1>
+    <p class="lead">
+      Book a trusted local pro for anything around the home, or sign up as
+      a handyman and earn on your own terms.
+    </p>
+  {% else %}
+    <h1>Home repairs, made easy</h1>
+    <p class="lead">
+      Book trusted local professionals for everything from furniture assembly
+      to painting — in minutes.
+    </p>
+  {% endif %}
 </section>
 
 <!-- Search card -->
 <div class="card hm-search-card">
   <div class="card-body p-4">
-    <form action="{% url 'search-tags' %}" method="post">
-      {% csrf_token %}
-      <div class="row g-2">
-        <div class="col-12 col-md-4">
-          <input type="text" class="form-control" placeholder="What do you need help with?" name="tags" id="tags" />
-        </div>
-        <div class="col-6 col-md-3">
-          <input type="text" class="form-control" placeholder="Postcode" name="zipcode" />
-        </div>
-        <div class="col-6 col-md-3">
-          <select class="form-select" name="services" id="services">
-            <option value="">All services</option>
-            <option value="Painting">Painting</option>
-            <option value="Furniture Assembly">Furniture Assembly</option>
-            <option value="General Handyman">General Handyman</option>
-            <option value="Help Moving">Help Moving</option>
-            <option value="TV Mounting">TV Mounting</option>
-            <option value="Gardening and Removal">Gardening and Removal</option>
-            <option value="Disinfecting Services">Disinfecting Services</option>
-            <option value="IKEA Services">IKEA Services</option>
-            <option value="Electrician">Electrician</option>
-            <option value="Plumber">Plumber</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-2 d-grid">
-          <button class="btn hm-btn-primary" type="submit">
-            <i class="fas fa-search me-1"></i>Find
-          </button>
-        </div>
-      </div>
-    </form>
+    {% include 'partials/search_form.html' %}
   </div>
 </div>
 
@@ -192,35 +170,34 @@
 </section>
 
 {% if user.is_anonymous %}
-<!-- Two audiences: hire or earn -->
-<section class="mt-4">
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="card hm-card h-100 text-center p-4">
-        <div class="hm-service-icon mx-auto"><i class="fas fa-house-chimney-crack"></i></div>
-        <h4>Need something fixed?</h4>
-        <p class="text-muted">
-          From a leaky tap to a full repaint — find rated local pros,
-          compare prices, and book in minutes.
-        </p>
-        <div class="mt-auto">
-          <a href="{% url 'handyman-registration' %}" class="btn hm-btn-primary px-4">Sign up to hire</a>
-        </div>
-      </div>
+<!-- Worker side: how earning works -->
+<section class="hm-earn-band mt-5">
+  <div class="text-center mb-4">
+    <span class="hm-earn-eyebrow">For handymen</span>
+    <h2 class="h4 mb-2">Earn on your own terms</h2>
+    <p class="mb-0">Join free, keep your schedule, and get paid for what you're good at.</p>
+  </div>
+  <div class="row g-4 text-center">
+    <div class="col-md-4">
+      <div class="hm-step-num hm-step-light">1</div>
+      <h6>Create your profile</h6>
+      <p class="small mb-0">Add your skills, service area, and the hourly rate you want to charge.</p>
     </div>
-    <div class="col-md-6">
-      <div class="card hm-card h-100 text-center p-4">
-        <div class="hm-service-icon mx-auto"><i class="fas fa-screwdriver-wrench"></i></div>
-        <h4>Good with your hands?</h4>
-        <p class="text-muted">
-          Set your own hourly rate, choose the jobs you want, and build your
-          reputation with customer reviews. No fees to join.
-        </p>
-        <div class="mt-auto">
-          <a href="{% url 'handyman-registration' %}" class="btn hm-btn-primary px-4">Become a Tasker</a>
-        </div>
-      </div>
+    <div class="col-md-4">
+      <div class="hm-step-num hm-step-light">2</div>
+      <h6>Accept the jobs you want</h6>
+      <p class="small mb-0">Requests land on your dashboard — take the ones that fit your schedule.</p>
     </div>
+    <div class="col-md-4">
+      <div class="hm-step-num hm-step-light">3</div>
+      <h6>Get reviewed, get booked</h6>
+      <p class="small mb-0">Finish the job, collect a rating, and climb the search results.</p>
+    </div>
+  </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'handyman-registration' %}" class="btn btn-light fw-semibold px-4 py-2">
+      <i class="fas fa-user-plus me-2"></i>Become a Tasker
+    </a>
   </div>
 </section>
 {% endif %}

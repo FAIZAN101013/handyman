@@ -1,0 +1,32 @@
+{% load static %}
+<form action="{% url 'search-tags' %}" method="post">
+  {% csrf_token %}
+  <div class="row g-2">
+    <div class="col-12 col-md-4">
+      <input type="text" class="form-control" placeholder="What do you need help with?" name="tags" id="tags" />
+    </div>
+    <div class="col-6 col-md-3">
+      <input type="text" class="form-control" placeholder="Postcode" name="zipcode" />
+    </div>
+    <div class="col-6 col-md-3">
+      <select class="form-select" name="services" id="services">
+        <option value="">All services</option>
+        <option value="Painting">Painting</option>
+        <option value="Furniture Assembly">Furniture Assembly</option>
+        <option value="General Handyman">General Handyman</option>
+        <option value="Help Moving">Help Moving</option>
+        <option value="TV Mounting">TV Mounting</option>
+        <option value="Gardening and Removal">Gardening and Removal</option>
+        <option value="Disinfecting Services">Disinfecting Services</option>
+        <option value="IKEA Services">IKEA Services</option>
+        <option value="Electrician">Electrician</option>
+        <option value="Plumber">Plumber</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-2 d-grid">
+      <button class="btn hm-btn-primary" type="submit">
+        <i class="fas fa-search me-1"></i>Find
+      </button>
+    </div>
+  </div>
+</form>
