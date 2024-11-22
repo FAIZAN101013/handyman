@@ -17,10 +17,29 @@
   --hm-shadow: 0 8px 24px rgba(23, 62, 89, 0.08);
 }
 
+/* Sticky footer: page fills at least the viewport, so short pages can never
+   leave a strip of blank background below the footer. */
+html,
+body {
+  height: 100%;
+}
+
 body {
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   background-color: var(--hm-bg);
   color: var(--hm-text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  margin: 0;
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+body > footer {
+  flex-shrink: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -350,6 +369,37 @@ a .hm-card:hover {
   margin: 0 auto 1rem;
 }
 
+/* "Earn on your own terms" band for the worker audience */
+.hm-earn-band {
+  background: linear-gradient(135deg, var(--hm-navy) 0%, var(--hm-blue) 100%);
+  border-radius: 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 3rem 1.5rem;
+}
+
+.hm-earn-band h2,
+.hm-earn-band h6 {
+  color: #fff;
+}
+
+.hm-earn-eyebrow {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 2rem;
+  padding: 0.3rem 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.hm-step-light {
+  background: #fff;
+  color: var(--hm-navy);
+}
+
 /* ------------------------------------------------------------------ */
 /* Auth pages                                                         */
 /* ------------------------------------------------------------------ */
@@ -568,6 +618,3 @@ a .hm-card:hover {
   border-radius: var(--hm-radius);
 }
 
-main {
-  min-height: 60vh;
-}
