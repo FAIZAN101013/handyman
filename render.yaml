@@ -1,0 +1,46 @@
+# Render Blueprint — deploy with "New > Blueprint" and point it at this repo.
+# Everything below (web service + database + env vars) is created automatically.
+
+databases:
+  - name: handyman-db
+    databaseName: handyman
+    user: handyman
+    plan: free
+
+services:
+  - type: web
+    name: handyman
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn Kwic_FixR_Main.wsgi:application"
+    healthCheckPath: /home/
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: handyman-db
+          property: connectionString
+
+      # Generated once by Render and kept secret — never appears in the repo.
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+
+      - key: DJANGO_DEBUG
+        value: "False"
+
+      - key: PYTHON_VERSION
+        value: "3.11.7"
+
+      # Gunicorn worker count; 4 is comfortable on Render's free instance.
+      - key: WEB_CONCURRENCY
+        value: "4"
+
+      # Email — set these in the Render dashboard, not here.
+      # Gmail needs an App Password: https://myaccount.google.com/apppasswords
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false

@@ -74,6 +74,32 @@ service or postcode, book a pro, and track the job from request to review.
    Open http://127.0.0.1:8000/ — sign up as a customer ("I want to hire"),
    a handyman ("I want to work"), or both.
 
+## Deploying to Render
+
+The repo ships a Blueprint, so Render can build the whole stack itself.
+
+1. Push this repo to GitHub.
+2. In Render: **New → Blueprint**, pick the repo, and apply
+   [`render.yaml`](render.yaml). It creates the web service, a Postgres
+   database, and generates `DJANGO_SECRET_KEY` for you.
+3. Add your email variables in the service's **Environment** tab —
+   `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` (a Gmail App Password), and
+   `DEFAULT_FROM_EMAIL`. Leave them unset and the app still runs; only
+   outgoing mail is disabled.
+4. Deploy. [`build.sh`](build.sh) installs dependencies, runs
+   `collectstatic`, and applies migrations on every deploy.
+
+Create your admin user afterwards from the service **Shell** tab:
+
+```bash
+python manage.py createsuperuser
+```
+
+**Note on uploads:** Render's free instances have an ephemeral filesystem, so
+images uploaded to `media/` disappear whenever the service restarts. Attach a
+persistent disk, or move uploads to object storage (S3, Cloudinary), if you
+need them to survive.
+
 ## Project Structure
 
 ```

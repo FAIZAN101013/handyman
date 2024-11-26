@@ -27,7 +27,25 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [
+    h.strip() for h in
+    os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()
+]
+
+# Render injects the public hostname at runtime; trust it automatically so the
+# site works on the first deploy without hardcoding the .onrender.com domain.
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Django 4 requires the full origin (with scheme) for cross-origin POSTs.
+# Without this, every form on an HTTPS deploy fails CSRF validation.
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in
+    os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 AUTH_USER_MODEL = 'userhandle.HandymanUser'
 
@@ -171,6 +189,11 @@ MEDIA_URL = '/media/'
 # Security hardening for production
 
 if not DEBUG:
+    # Render terminates TLS at its proxy and forwards plain HTTP. Without this
+    # header Django never sees the request as secure, so SECURE_SSL_REDIRECT
+    # would redirect forever (ERR_TOO_MANY_REDIRECTS).
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
     SECURE_SSL_REDIRECT = os.getenv('DJANGO_SECURE_SSL_REDIRECT', 'True') == 'True'
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
