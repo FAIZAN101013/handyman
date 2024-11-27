@@ -1,6 +1,3 @@
-from cProfile import label
-from re import A
-from tkinter.ttk import Widget
 from django import forms
 from .models import Booked, HandymanUser, service_choices
 from django.contrib.auth.password_validation import validate_password
