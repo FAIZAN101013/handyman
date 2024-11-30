@@ -101,6 +101,78 @@
   </div>
 </form>
 
+{% if user.is_FixR %}
+<!-- Services this handyman offers, each with its own rate -->
+<div class="card hm-card mt-4">
+  <div class="card-body">
+    <h3 class="hm-section-title h6 mb-1">
+      <i class="fas fa-toolbox me-2"></i>Services I offer
+    </h3>
+    <p class="text-muted small mb-3">
+      Add every kind of job you take on, each with its own hourly rate.
+      Customers searching for any of these will find you.
+    </p>
+
+    {% if offerings %}
+      <div class="table-responsive mb-3">
+        <table class="table align-middle mb-0">
+          <tbody>
+            {% for offering in offerings %}
+              <tr>
+                <td class="ps-0">
+                  <span class="hm-chip">{{ offering.service }}</span>
+                  {% if offering.description %}
+                    <div class="text-muted small mt-1">{{ offering.description }}</div>
+                  {% endif %}
+                </td>
+                <td class="hm-meta-value text-nowrap">&pound;{{ offering.price }}/hour</td>
+                <td class="text-end pe-0">
+                  <form method="post" action="{% url 'delete-service-offering' offering.id %}"
+                        onsubmit="return confirm('Remove {{ offering.service }} from your services?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove this service">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted small mb-3">
+        <i class="fas fa-circle-info me-1"></i>No services added yet — add your first one below.
+      </p>
+    {% endif %}
+
+    <!-- Add another job profile -->
+    <form method="post" action="{% url 'add-service-offering' %}" class="border-top pt-3">
+      {% csrf_token %}
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label" for="id_service">Service</label>
+          {{ offering_form.service }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="id_price">Hourly rate (&pound;)</label>
+          {{ offering_form.price }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="id_description">Details (optional)</label>
+          {{ offering_form.description }}
+        </div>
+        <div class="col-md-2 d-grid">
+          <button type="submit" class="btn hm-btn-primary">
+            <i class="fas fa-plus me-1"></i>Add
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
 <script>
   // Camera button opens the hidden file input
   document.querySelector('.hm-profile-avatar-upload').addEventListener('click', function (e) {

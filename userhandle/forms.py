@@ -1,5 +1,5 @@
 from django import forms
-from .models import Booked, HandymanUser, service_choices
+from .models import Booked, HandymanUser, ServiceOffering, service_choices
 from django.contrib.auth.password_validation import validate_password
 from django.core import validators
 
@@ -93,3 +93,22 @@ class BookingForm(forms.ModelForm):
             self.fields['time'].widget.attrs.update({'class':'form-control-1'})
             self.fields['hours'].widget.attrs.update({'class':'form-control-1'})
 
+
+
+# One "job profile" a handyman offers: the service and what they charge for it.
+# Used on the profile page to add rows to the handyman's service list.
+class ServiceOfferingForm(forms.ModelForm):
+    class Meta:
+        model = ServiceOffering
+        fields = ('service', 'price', 'description')
+        labels = {
+            'price': 'Hourly rate (£)',
+            'description': 'Details (optional)',
+        }
+        widgets = {
+            'service': forms.Select(attrs={'class': 'form-select'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': '30'}),
+            'description': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'e.g. flat-pack, any brand'}
+            ),
+        }

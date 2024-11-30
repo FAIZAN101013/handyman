@@ -31,7 +31,14 @@
           <span class="text-muted ms-1 small">{{ s.handyman_rating }} ({{ s.handyman_rating_count }} reviews)</span>
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center">
-          <span class="hm-chip">{{ s.handyman_services }}</span>
+          {% for offering in s.offerings.all|slice:":3" %}
+            <span class="hm-chip">{{ offering.service }} &middot; &pound;{{ offering.price }}</span>
+          {% empty %}
+            <span class="hm-chip">{{ s.handyman_services }}</span>
+          {% endfor %}
+          {% if s.offerings.all|length > 3 %}
+            <small class="text-muted">+{{ s.offerings.all|length|add:"-3" }} more</small>
+          {% endif %}
           <small class="text-muted">
             <i class="fas fa-location-dot me-1"></i>{% if s.postcode %}{{ s.postcode }}{% else %}No address{% endif %}
           </small>

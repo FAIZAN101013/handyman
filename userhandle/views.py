@@ -2,10 +2,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
-from .models import Booked, HandymanUser
+from .models import Booked, HandymanUser, ServiceOffering
 from django.contrib.auth import authenticate , login, logout
-from .forms import HandymanRegisterform
+from .forms import HandymanRegisterform, ServiceOfferingForm
 from django.db.models import Q
+from django.db import transaction
+from django.db.utils import IntegrityError
 from django.views.generic import TemplateView, UpdateView
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -212,11 +214,65 @@ class ProfileEditViewHandyman(UpdateView):
     template_name = 'profile.html'
     success_url = reverse_lazy('index')
 
+    def get_context_data(self, **kwargs):
+        # The service list is edited separately from the profile form, so it is
+        # passed alongside rather than being part of it.
+        context = super().get_context_data(**kwargs)
+        context['offerings'] = self.object.offerings.all()
+        context['offering_form'] = ServiceOfferingForm()
+        return context
+
     def form_valid(self, form):
         if 'handyman_image' in self.request.FILES:
             form.instance.handyman_image = self.request.FILES['handyman_image']
         messages.success(self.request, 'Profile updated successfully!')
         return super().form_valid(form)
+
+
+# A handyman can do more than one kind of job, each at its own rate. These two
+# views add and remove those job profiles. Both work off request.user, so one
+# handyman can never touch another's list.
+def AddServiceOffering(request):
+    if not (request.user.is_authenticated and request.user.is_FixR):
+        return redirect('handyman-login')
+
+    if request.method == 'POST':
+        form = ServiceOfferingForm(request.POST)
+        if form.is_valid():
+            offering = form.save(commit=False)
+            offering.handyman = request.user
+            try:
+                # The savepoint keeps a constraint violation from poisoning the
+                # surrounding transaction, so the redirect and its queries still
+                # work when the service turns out to be a duplicate.
+                with transaction.atomic():
+                    offering.save()
+                messages.success(request, f'Added {offering.service} to your services.')
+            except IntegrityError:
+                # Blocked by the unique constraint — they already list this one.
+                messages.error(
+                    request,
+                    f'You already offer {offering.service}. Remove it first to change the rate.'
+                )
+        else:
+            messages.error(request, 'Please pick a service and enter a valid hourly rate.')
+
+    return redirect('handyman-profile', pk=request.user.id)
+
+
+def DeleteServiceOffering(request, id):
+    if not (request.user.is_authenticated and request.user.is_FixR):
+        return redirect('handyman-login')
+
+    if request.method == 'POST':
+        # Scoping the lookup to the logged-in handyman means a crafted id
+        # cannot delete somebody else's service.
+        offering = ServiceOffering.objects.filter(id=id, handyman=request.user).first()
+        if offering:
+            offering.delete()
+            messages.success(request, f'Removed {offering.service} from your services.')
+
+    return redirect('handyman-profile', pk=request.user.id)
 
 
 # below is the profile edit logic built by generic view of django
@@ -312,16 +368,21 @@ def SearchTags(request):
             Q(is_superuser=True) |
             Q(is_customer=True))
         if services:
-            servicelist = servicelist.filter(handyman_services=services)
+            # Match the headline service or any of the handyman's job profiles.
+            servicelist = servicelist.filter(
+                Q(handyman_services=services) | Q(offerings__service=services)
+            )
         if postcode:
             servicelist = servicelist.filter(postcode__contains=postcode)
         if tags is not None:
             servicelist = servicelist.filter(
                 Q(service_tags__contains=tags) |
                 Q(handyman_services__contains=tags) |
+                Q(offerings__service__contains=tags) |
+                Q(offerings__description__contains=tags) |
                 Q(bio__contains=tags)|
                 Q(firstname__contains=tags)|
-                Q(lastname__contains=tags)).exclude(Q(is_FixR=False))
+                Q(lastname__contains=tags)).exclude(Q(is_FixR=False)).distinct()
             count = len(servicelist)        
             total = count
             if total == 0:

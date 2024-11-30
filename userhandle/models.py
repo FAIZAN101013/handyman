@@ -129,6 +129,43 @@ class Booked(models.Model):
 
 
 
+# A handyman is rarely a one-trick worker: the same person may assemble
+# furniture for one rate and paint for another. ServiceOffering holds one
+# "job profile" — a service plus what they charge for it — so a handyman can
+# add as many as they like and remove the ones they no longer want.
+# HandymanUser.handyman_services / .price stay as the headline service and
+# rate shown when someone has not added any offerings yet.
+class ServiceOffering(models.Model):
+    handyman = models.ForeignKey(
+        HandymanUser,
+        on_delete=models.CASCADE,
+        related_name='offerings',
+    )
+    service = models.CharField(choices=service_choices, max_length=100)
+    price = models.PositiveIntegerField(verbose_name="Hourly rate")
+    description = models.CharField(
+        max_length=300,
+        blank=True,
+        null=True,
+        help_text="Optional — what this covers, e.g. 'flat-pack furniture, any brand'",
+    )
+
+    class Meta:
+        verbose_name_plural = "Service offerings"
+        ordering = ('service',)
+        constraints = [
+            # One rate per service per person: adding "Painting" twice is a
+            # mistake, not two job profiles.
+            models.UniqueConstraint(
+                fields=['handyman', 'service'],
+                name='unique_service_per_handyman',
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.handyman} — {self.service}"
+
+
 class Rate(models.Model):
     customer = models.ForeignKey(HandymanUser, related_name="customer_rating", on_delete=models.CASCADE)
     FixR = models.ForeignKey(HandymanUser, related_name="FixR_rating", on_delete=models.CASCADE)

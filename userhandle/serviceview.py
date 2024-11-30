@@ -17,6 +17,19 @@ def customer_only(view):
     return wrapper
 
 
+# A handyman turns up for a service either because it is their headline service
+# or because they added it as one of their job profiles. distinct() matters:
+# joining across offerings would otherwise repeat a handyman once per match.
+def handymen_for(service):
+    return HandymanUser.objects.filter(
+        Q(is_superuser=False),
+        Q(is_customer=False),
+        Q(handyman_services__contains=service) | Q(offerings__service=service),
+    ).exclude(
+        Q(handyman_services="All Services") & Q(offerings__isnull=True)
+    ).distinct()
+
+
 @customer_only
 def General(request):
     allservicelist = HandymanUser.objects.filter(
@@ -25,14 +38,7 @@ def General(request):
             
             Q(handyman_services="All Services")
             )
-    services = HandymanUser.objects.filter(
-        Q(is_superuser=False),
-        Q(is_customer=False),
-        handyman_services__contains= "General Handyman"
-        ).exclude(
-     
-        Q(handyman_services="All Services")  
-        )
+    services = handymen_for("General Handyman")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -50,15 +56,7 @@ def Furniture(request):
                         
                        
                     
-    services = HandymanUser.objects.filter(
-        Q(is_superuser=False),
-        Q(is_customer=False),
-        handyman_services__contains= "Furniture Assembly"
-        ).exclude(
-
-         
-            Q(handyman_services="All Services")  
-        )
+    services = handymen_for("Furniture Assembly")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -71,14 +69,7 @@ def Moving(request):
            
             Q(handyman_services="All Services")
             )
-    services = HandymanUser.objects.filter(
-        Q(is_superuser=False),
-        Q(is_customer=False),
-        handyman_services__contains= "Help Moving"
-        ).exclude(
-       
-            Q(handyman_services="All Services")  
-        )
+    services = handymen_for("Help Moving")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -92,14 +83,7 @@ def Mounting(request):
             Q(handyman_services="All Services")
             )
 
-    services = HandymanUser.objects.filter(
-        Q(is_superuser=False),
-        Q(is_customer=False),
-        handyman_services__contains= "Tv Mounting"
-        ).exclude(
-         
-            Q(handyman_services="All Services")  
-        )
+    services = handymen_for("TV Mounting")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
     
@@ -113,16 +97,7 @@ def Painting(request):
             Q(handyman_services="All Services")
             )
 
-    # services = HandymanUser.objects.all().filter(handyman_services__contains='painting' ,is_superuser=False).exclude(is_customer=True)
-    services = HandymanUser.objects.filter(
-        Q(is_superuser=False),
-        Q(is_customer=False),
-        Q(handyman_services__contains= "Painting")
-
-        ).exclude(
-        
-            Q(handyman_services="All Services")  
-        )
+    services = handymen_for("Painting")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -138,12 +113,7 @@ def disinfecting_services(request):
                         Q(is_superuser=True)
                        
                         ) 
-    services = HandymanUser.objects.filter(
-        handyman_services__contains= "Disinfecting Services"
-        ).exclude(
-          
-            Q(handyman_services="All Services")  
-        )
+    services = handymen_for("Disinfecting Services")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -161,11 +131,7 @@ def ikea_services(request):
                         Q(is_superuser=True)
                        
                         ) 
-    services = HandymanUser.objects.filter(
-        handyman_services__contains= "IKEA"
-        ).exclude(
-            Q(handyman_services="All Services")  
-        )
+    services = handymen_for("IKEA Services")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -183,10 +149,25 @@ def all_services(request):
 
 
 
+# Price filters match on the headline rate or on any job profile's rate, so a
+# handyman who charges £8 for one job still shows under the cheapest bracket.
+def handymen_priced(low=None, high=None):
+    base, offering = Q(), Q()
+    if low is not None:
+        base &= Q(price__gte=low)
+        offering &= Q(offerings__price__gte=low)
+    if high is not None:
+        base &= Q(price__lte=high)
+        offering &= Q(offerings__price__lte=high)
+    return HandymanUser.objects.filter(
+        Q(is_FixR=True), Q(is_customer=False), Q(is_superuser=False),
+    ).filter(base | offering).distinct()
+
+
 @customer_only
 def lowpricehandyman(request):
-    services = HandymanUser.objects.filter(price__lte=10)
-    allservicelist = '' 
+    services = handymen_priced(high=10)
+    allservicelist = ''
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -194,8 +175,8 @@ def lowpricehandyman(request):
 
 @customer_only
 def highpricehandyman(request):
-    services = HandymanUser.objects.filter(price__gte=50)
-    allservicelist = '' 
+    services = handymen_priced(low=50)
+    allservicelist = ''
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
@@ -203,10 +184,8 @@ def highpricehandyman(request):
 
 @customer_only
 def mediumpricehandyman(request):
-    services = HandymanUser.objects.all().filter(
-        Q(price__gte=10)& Q(price__lte=50)& Q(is_FixR=True) & Q(is_customer=False) & 
-        Q(is_superuser=False))
-    allservicelist = '' 
+    services = handymen_priced(low=10, high=50)
+    allservicelist = ''
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
 
