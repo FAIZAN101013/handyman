@@ -210,7 +210,14 @@ class ChangePasswordView(PasswordChangeView):
 # look for {% if user.is_FixR %} in profile.html 
 class ProfileEditViewHandyman(UpdateView):
     model = HandymanUser
-    fields = ['firstname', 'lastname', 'bio', 'service_tags', 'handyman_services', 'price', 'handyman_image']
+    # Services and rates are managed in the offerings list below the form, so
+    # handyman_services/price are deliberately not editable here — one place to
+    # set what you do, not two.
+    fields = [
+        'firstname', 'lastname', 'contact', 'postcode', 'bio', 'service_tags',
+        'website', 'google_reviews_url', 'facebook_url', 'instagram_url',
+        'handyman_image',
+    ]
     template_name = 'profile.html'
     success_url = reverse_lazy('index')
 

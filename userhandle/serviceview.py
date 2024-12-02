@@ -30,14 +30,27 @@ def handymen_for(service):
     ).distinct()
 
 
+# Handymen who cover everything. Since handyman_services defaults to
+# "All Services" and is no longer editable, the legacy field alone would sweep
+# in every profile that never configured anything -- a set price is what marks
+# a legacy profile as deliberately set up.
+def all_round_handymen():
+    return HandymanUser.objects.filter(
+        Q(is_customer=False),
+        Q(is_superuser=False),
+    ).filter(
+        Q(offerings__service="All Services")
+        | (
+            Q(offerings__isnull=True)
+            & Q(handyman_services="All Services")
+            & Q(price__isnull=False)
+        )
+    ).distinct()
+
+
 @customer_only
 def General(request):
-    allservicelist = HandymanUser.objects.filter(
-            Q(is_superuser=False),
-            Q(is_customer=False),
-            
-            Q(handyman_services="All Services")
-            )
+    allservicelist = all_round_handymen()
     services = handymen_for("General Handyman")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
@@ -47,12 +60,7 @@ def General(request):
 
 @customer_only
 def Furniture(request):
-    allservicelist = HandymanUser.objects.filter(
-            Q(is_superuser=False),
-            Q(is_customer=False),
-           
-            Q(handyman_services="All Services")
-            )
+    allservicelist = all_round_handymen()
                         
                        
                     
@@ -63,12 +71,7 @@ def Furniture(request):
 
 @customer_only
 def Moving(request):
-    allservicelist = HandymanUser.objects.filter(
-            Q(is_superuser=False),
-            Q(is_customer=False),
-           
-            Q(handyman_services="All Services")
-            )
+    allservicelist = all_round_handymen()
     services = handymen_for("Help Moving")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
@@ -76,12 +79,7 @@ def Moving(request):
 
 @customer_only
 def Mounting(request):
-    allservicelist = HandymanUser.objects.filter(
-            Q(is_superuser=False),
-            Q(is_customer=False),
-           
-            Q(handyman_services="All Services")
-            )
+    allservicelist = all_round_handymen()
 
     services = handymen_for("TV Mounting")
     context = {'servicelist':services, 'allservicelist': allservicelist}
@@ -90,12 +88,7 @@ def Mounting(request):
 
 @customer_only
 def Painting(request):
-    allservicelist = HandymanUser.objects.filter(
-            Q(is_superuser=False),
-            Q(is_customer=False),
-           
-            Q(handyman_services="All Services")
-            )
+    allservicelist = all_round_handymen()
 
     services = handymen_for("Painting")
     context = {'servicelist':services, 'allservicelist': allservicelist}
@@ -105,14 +98,7 @@ def Painting(request):
     
 @customer_only
 def disinfecting_services(request):
-    allservicelist = HandymanUser.objects.filter(
-          
-            Q(handyman_services="All Services")
-            ).exclude(
-                        Q(is_customer=True)|
-                        Q(is_superuser=True)
-                       
-                        ) 
+    allservicelist = all_round_handymen() 
     services = handymen_for("Disinfecting Services")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)
@@ -123,14 +109,7 @@ def disinfecting_services(request):
 
 @customer_only
 def ikea_services(request):
-    allservicelist = HandymanUser.objects.filter(
-            Q(handyman_services="All Services")& 
-            Q(is_FixR=True) & Q(is_customer=False) & Q(is_superuser=False)
-            ).exclude(
-                        Q(is_customer=True)|
-                        Q(is_superuser=True)
-                       
-                        ) 
+    allservicelist = all_round_handymen() 
     services = handymen_for("IKEA Services")
     context = {'servicelist':services, 'allservicelist': allservicelist}
     return render(request, 'search_result.html', context)

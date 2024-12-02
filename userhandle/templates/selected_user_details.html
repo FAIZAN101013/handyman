@@ -42,10 +42,39 @@
             </div>
             <div class="vr"></div>
             <div>
-              <div class="hm-meta-value fs-5">&pound;{% if userdetails.price %}{{ userdetails.price }}{% else %}40{% endif %}</div>
+              <div class="hm-meta-value fs-5">{% if userdetails.rate_display %}{{ userdetails.rate_display }}{% else %}&pound;40{% endif %}</div>
               <div class="hm-meta-label">per hour</div>
             </div>
           </div>
+
+          {% if userdetails.google_reviews_url or userdetails.website or userdetails.facebook_url or userdetails.instagram_url %}
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+              {% if userdetails.google_reviews_url %}
+                <a href="{{ userdetails.google_reviews_url }}" target="_blank" rel="noopener noreferrer nofollow"
+                   class="btn btn-sm btn-outline-secondary">
+                  <i class="fa-solid fa-star text-warning me-1"></i>Google reviews
+                </a>
+              {% endif %}
+              {% if userdetails.website %}
+                <a href="{{ userdetails.website }}" target="_blank" rel="noopener noreferrer nofollow"
+                   class="btn btn-sm btn-outline-secondary" title="Website">
+                  <i class="fas fa-globe"></i>
+                </a>
+              {% endif %}
+              {% if userdetails.facebook_url %}
+                <a href="{{ userdetails.facebook_url }}" target="_blank" rel="noopener noreferrer nofollow"
+                   class="btn btn-sm btn-outline-secondary" title="Facebook">
+                  <i class="fab fa-facebook-f"></i>
+                </a>
+              {% endif %}
+              {% if userdetails.instagram_url %}
+                <a href="{{ userdetails.instagram_url }}" target="_blank" rel="noopener noreferrer nofollow"
+                   class="btn btn-sm btn-outline-secondary" title="Instagram">
+                  <i class="fab fa-instagram"></i>
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
 
           {% if userdetails.postcode %}
             <p class="text-muted mb-0">
@@ -136,7 +165,9 @@
 
 <script>
   (function () {
-    var rate = parseFloat("{% if userdetails.price %}{{ userdetails.price }}{% else %}40{% endif %}") || 40;
+    // Lowest of the handyman's service rates — the final price depends on
+    // which job they end up doing, so this is a "from" figure.
+    var rate = parseFloat("{{ userdetails.base_rate }}") || 40;
     var hoursInput = document.getElementById('id_hoursneeded');
     var totalEl = document.getElementById('estimate-total');
     var detailEl = document.getElementById('estimate-detail');

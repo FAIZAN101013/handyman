@@ -40,8 +40,8 @@
     <div class="card hm-card h-100 text-center">
       <div class="card-body">
         <div class="hm-service-icon mx-auto"><i class="fas fa-sterling-sign"></i></div>
-        <h5 class="mb-1">{% if user.price %}&pound;{{ user.price }}/hour{% else %}No rate set{% endif %}</h5>
-        <small class="text-muted">{% if user.price %}your current rate{% else %}<a href="{% url 'handyman-profile' user.id %}">set your rate</a> to appear in price searches{% endif %}</small>
+        <h5 class="mb-1">{% if user.rate_display %}{{ user.rate_display }}/hour{% else %}No rate set{% endif %}</h5>
+        <small class="text-muted">{% if user.rate_display %}across your services{% else %}<a href="{% url 'handyman-profile' user.id %}">add a service</a> to appear in searches{% endif %}</small>
       </div>
     </div>
   </div>
@@ -49,8 +49,11 @@
     <div class="card hm-card h-100 text-center">
       <div class="card-body">
         <div class="hm-service-icon mx-auto"><i class="fas fa-toolbox"></i></div>
-        <h5 class="mb-1">{{ user.handyman_services }}</h5>
-        <small class="text-muted">your listed service</small>
+        <h5 class="mb-1">{{ user.offerings.all|length|default:"0" }}</h5>
+        <small class="text-muted">
+          service{{ user.offerings.all|length|pluralize }} listed —
+          <a href="{% url 'handyman-profile' user.id %}">manage</a>
+        </small>
       </div>
     </div>
   </div>

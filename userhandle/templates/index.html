@@ -51,7 +51,7 @@
       <div class="card-body py-3">
         <p class="hm-meta-label mb-1">Your rate</p>
         <span class="hm-meta-value fs-3">
-          {% if user.price %}&pound;{{ user.price }}<small class="fs-6 fw-normal text-muted">/hr</small>{% else %}—{% endif %}
+          {% if user.rate_display %}{{ user.rate_display }}<small class="fs-6 fw-normal text-muted">/hr</small>{% else %}—{% endif %}
         </span>
       </div>
     </div>
@@ -59,7 +59,7 @@
 </div>
 
 <!-- Suggestions to get more bookings -->
-{% if not user.handyman_image or not user.bio or not user.price or not user.postcode or not user.service_tags %}
+{% if not user.handyman_image or not user.bio or not user.has_services or not user.postcode or not user.service_tags %}
   <div class="card hm-card mb-4" style="border-left: 4px solid #f5b301;">
     <div class="card-body py-3">
       <p class="fw-semibold mb-2" style="color: #173e59;">
@@ -72,8 +72,8 @@
         {% if not user.bio %}
           <li>Write a short <a href="{% url 'handyman-profile' user.id %}">bio</a> about your experience and skills.</li>
         {% endif %}
-        {% if not user.price %}
-          <li>Set your <a href="{% url 'handyman-profile' user.id %}">hourly rate</a> so customers know what to expect.</li>
+        {% if not user.has_services %}
+          <li>List the <a href="{% url 'handyman-profile' user.id %}">services you offer</a> and your rate for each — this is how customers find you.</li>
         {% endif %}
         {% if not user.service_tags %}
           <li>Add <a href="{% url 'handyman-profile' user.id %}">service tags</a> so you show up in more searches.</li>

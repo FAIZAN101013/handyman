@@ -73,6 +73,9 @@
           {% if form.contact %}
             {{ form.contact|as_crispy_field }}
           {% endif %}
+          {% if form.postcode %}
+            {{ form.postcode|as_crispy_field }}
+          {% endif %}
         </div>
       </div>
     </div>
@@ -82,12 +85,38 @@
       <div class="card hm-card h-100">
         <div class="card-body">
           <h3 class="hm-section-title h6 mb-3">
-            <i class="fas fa-tools me-2"></i>Professional Information
+            <i class="fas fa-tools me-2"></i>About You
           </h3>
           {% if form.bio %}{{ form.bio|as_crispy_field }}{% endif %}
-          {% if form.handyman_services %}{{ form.handyman_services|as_crispy_field }}{% endif %}
-          {% if form.price %}{{ form.price|as_crispy_field }}{% endif %}
           {% if form.service_tags %}{{ form.service_tags|as_crispy_field }}{% endif %}
+          <p class="text-muted small mb-0">
+            <i class="fas fa-circle-info me-1"></i>Your services and rates are
+            set in <strong>Services I offer</strong> below.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card hm-card">
+        <div class="card-body">
+          <h3 class="hm-section-title h6 mb-1">
+            <i class="fas fa-link me-2"></i>Links &amp; Reviews
+          </h3>
+          <p class="text-muted small mb-3">
+            Optional, but they build trust — customers can check your work
+            before booking.
+          </p>
+          <div class="row">
+            <div class="col-md-6">
+              {% if form.google_reviews_url %}{{ form.google_reviews_url|as_crispy_field }}{% endif %}
+              {% if form.website %}{{ form.website|as_crispy_field }}{% endif %}
+            </div>
+            <div class="col-md-6">
+              {% if form.facebook_url %}{{ form.facebook_url|as_crispy_field }}{% endif %}
+              {% if form.instagram_url %}{{ form.instagram_url|as_crispy_field }}{% endif %}
+            </div>
+          </div>
         </div>
       </div>
     </div>

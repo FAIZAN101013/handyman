@@ -50,7 +50,7 @@
 
       <div class="col-12 col-md-auto text-md-end">
         <div class="hm-meta-value fs-4 mb-2">
-          &pound;{% if s.price %}{{ s.price }}{% else %}40{% endif %}<small class="text-muted fs-6 fw-normal">/hour</small>
+          {% if s.rate_display %}{{ s.rate_display }}{% else %}&pound;40{% endif %}<small class="text-muted fs-6 fw-normal">/hour</small>
         </div>
         <a href="{% url 'user-details' s.id %}" class="btn hm-btn-primary">
           View &amp; Book<i class="fas fa-arrow-right ms-2"></i>

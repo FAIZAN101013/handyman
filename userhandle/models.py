@@ -60,6 +60,17 @@ class HandymanUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateField(auto_now_add=True, null=True, blank=True)
     service_tags = models.CharField(max_length=200,  null=True, blank=True)
 
+    # Places a customer can go to check the handyman out for themselves.
+    # URLField validates the scheme, so only http(s) links can be stored.
+    website = models.URLField(max_length=300, blank=True, null=True)
+    google_reviews_url = models.URLField(
+        max_length=500, blank=True, null=True,
+        verbose_name="Google reviews link",
+        help_text="Link to your Google Business profile or reviews page",
+    )
+    facebook_url = models.URLField(max_length=300, blank=True, null=True, verbose_name="Facebook")
+    instagram_url = models.URLField(max_length=300, blank=True, null=True, verbose_name="Instagram")
+
     is_customer = models.BooleanField(default=False)
     is_FixR = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -91,6 +102,34 @@ class HandymanUser(AbstractBaseUser, PermissionsMixin):
             return str(self.firstname + " " + self.lastname)
 
         return self.email
+
+    # Rates now live on the individual service offerings, so what to show is
+    # either a single figure or a range. Falls back to the legacy price field
+    # for profiles created before offerings existed.
+    @property
+    def rate_display(self):
+        prices = sorted(o.price for o in self.offerings.all())
+        if prices:
+            if prices[0] == prices[-1]:
+                return f"£{prices[0]}"
+            return f"£{prices[0]}–{prices[-1]}"
+        if self.price:
+            return f"£{self.price}"
+        return None
+
+    # True once the handyman has said what they actually do.
+    @property
+    def has_services(self):
+        return self.offerings.exists()
+
+    # A single number for estimates: the cheapest service they offer, falling
+    # back to the legacy rate and finally to the site default.
+    @property
+    def base_rate(self):
+        prices = [o.price for o in self.offerings.all()]
+        if prices:
+            return min(prices)
+        return self.price or 40
 
     # def savetags(self):
     #     if self.handyman_category in tagdict:
