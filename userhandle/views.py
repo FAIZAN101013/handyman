@@ -536,8 +536,8 @@ def HandymanServiceApprovedDetails(request, id):
 # It records date, time and hours from the customer (This data is not saved but only send to the customer after booking is done).
 # subject of the mail is stored and html file is converted in string to send the mail to browers supporting html and strings
 # plaing messages removes the html tags like <body> <div> and <head> from the html 
-#finally if the email address of the handyman is valid then handyman will recieve a mail from Handyman00789@gmail.com
-# Handyman00789@gmail.com is companies mail to send to the users  
+# finally if the email address of the handyman is valid then the handyman receives a mail
+# sent from whatever address DEFAULT_FROM_EMAIL is set to in the environment
 def BookService(request, id):
     from .forms import ServiceBookingForm
     user = request.user 
