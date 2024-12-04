@@ -151,17 +151,35 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # For Gmail, use an App Password (https://myaccount.google.com/apppasswords);
 # "less secure apps" sign-in no longer exists.
 
-EMAIL_BACKEND = os.getenv(
-    'DJANGO_EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend' if DEBUG
-    else 'django.core.mail.backends.smtp.EmailBackend',
-)
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+# Never let a mail server hold a web request open: without this, an
+# unreachable SMTP host blocks until the OS gives up, which is a minute of
+# spinner for whoever clicked the button.
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
+
+# With no credentials there is nothing to authenticate with, so SMTP could only
+# stall and fail. Fall back to printing the message into the service log
+# instead — the app keeps working and the mail is still visible for debugging.
+_SMTP_CONFIGURED = bool(EMAIL_HOST_USER and EMAIL_HOST_PASSWORD)
+EMAIL_BACKEND = os.getenv(
+    'DJANGO_EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'
+    if _SMTP_CONFIGURED and not DEBUG
+    else 'django.core.mail.backends.console.EmailBackend',
+)
+
+# Gmail refuses to send as an arbitrary third party, so notifications go out
+# from the configured account rather than from whoever clicked the button.
+DEFAULT_FROM_EMAIL = (
+    os.getenv('DEFAULT_FROM_EMAIL')
+    or EMAIL_HOST_USER
+    or 'Handy Man <no-reply@handyman.local>'
+)
 
 # Static files (CSS, JavaScript, Images)
 
