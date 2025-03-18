@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-v#qnfss74ud0ir_^7i=)m%0^+qc3h!vzc49$2(!w3o8l+00#zf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['handyman-vtpi.onrender.com']
 
 AUTH_USER_MODEL = 'userhandle.HandymanUser'
 
