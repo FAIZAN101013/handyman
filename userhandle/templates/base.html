@@ -5,47 +5,169 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kwik FixR</title>
+    <title>{% block title %}Handy Man{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'style/style.css' %}" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'bootstrap-float-label-master/bootstrap-float-label.min.css' %}"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <script
-      src="https://kit.fontawesome.com/64bb69d5a5.js"
-      crossorigin="anonymous"
-    ></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
   <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">
+          <i class="fas fa-tools me-2"></i>Handy Man
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            {% if user.is_authenticated %}
+              {% if user.is_customer %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'previous-booking' %}">
+                    <i class="fas fa-calendar-alt me-1"></i>My Bookings
+                  </a>
+                </li>
+              {% endif %}
+            {% endif %}
+            
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-list me-1"></i>Services
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'general-handyman' %}">
+                  <i class="fas fa-wrench me-2"></i>General Handyman
+                </a>
+                <a class="dropdown-item" href="{% url 'furniture-assembly' %}">
+                  <i class="fas fa-couch me-2"></i>Furniture Assembly
+                </a>
+                <a class="dropdown-item" href="{% url 'help-moving' %}">
+                  <i class="fas fa-truck me-2"></i>Help Moving
+                </a>
+                <a class="dropdown-item" href="{% url 'tv-mounting' %}">
+                  <i class="fas fa-tv me-2"></i>TV Mounting
+                </a>
+                <a class="dropdown-item" href="{% url 'painting' %}">
+                  <i class="fas fa-paint-roller me-2"></i>Painting
+                </a>
+                <a class="dropdown-item" href="{% url 'disinfecting-services' %}">
+                  <i class="fas fa-spray-can me-2"></i>Disinfecting Services
+                </a>
+                <a class="dropdown-item" href="{% url 'ikea-services' %}">
+                  <i class="fas fa-box me-2"></i>IKEA Services
+                </a>
+                <a class="dropdown-item" href="{% url 'all-services' %}">
+                  <i class="fas fa-th-list me-2"></i>All Services
+                </a>
+              </div>
+            </li>
 
-  
+            {% if user.is_anonymous %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'handyman-login' %}">
+                  <i class="fas fa-sign-in-alt me-1"></i>Sign up / Log in
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn btn-outline-primary ms-2" href="{% url 'handyman-registration' %}">
+                  <i class="fas fa-user-plus me-1"></i>Become a Tasker
+                </a>
+              </li>
+            {% elif user.is_authenticated %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                  {% if user.handyman_image %}
+                    <img src="{{ user.handyman_image.url }}" class="avatar me-2" alt="Profile">
+                  {% else %}
+                    <img src="{% static 'img/default_profile.png' %}" class="avatar me-2" alt="Profile">
+                  {% endif %}
+                  {{ user }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                  {% if user.is_FixR %}
+                    <a class="dropdown-item" href="{% url 'handyman-profile' user.id %}">
+                      <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                  {% elif user.is_customer %}
+                    <a class="dropdown-item" href="{% url 'customer-profile' user.id %}">
+                      <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                  {% endif %}
+                  <a class="dropdown-item" href="{% url 'handyman-logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  </a>
+                </div>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
 
+    <!-- Main Content -->
+    <main class="container my-4">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
 
-  {% block navigation %}
-
-
+      {% block content %}
   {% endblock %}
+    </main>
 
-    {% block body %}
-    
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <h5>Handy Man</h5>
+            <p class="text-muted">Your trusted partner for all home services and repairs.</p>
+          </div>
+          <div class="col-md-4">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li><a href="{% url 'index' %}" class="text-decoration-none">Home</a></li>
+              <li><a href="{% url 'all-services' %}" class="text-decoration-none">Services</a></li>
+              <li><a href="#" class="text-decoration-none">About Us</a></li>
+              <li><a href="#" class="text-decoration-none">Contact</a></li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h5>Contact Us</h5>
+            <ul class="list-unstyled">
+              <li><i class="fas fa-envelope me-2"></i>support@handyman.com</li>
+              <li><i class="fas fa-phone me-2"></i>+1 (123) 456-7890</li>
+            </ul>
+          </div>
+        </div>
+        <hr>
+        <div class="text-center text-muted">
+          <small>&copy; {% now "Y" %} Handy Man. All rights reserved.</small>
+        </div>
+      </div>
+    </footer>
 
-    {% endblock %}
+    <!-- Custom JavaScript -->
+    <script>
+      // Add fade-in animation to elements
+      document.addEventListener('DOMContentLoaded', function() {
+        const elements = document.querySelectorAll('.fade-in');
+        elements.forEach(element => {
+          element.style.opacity = '0';
+          setTimeout(() => {
+            element.style.opacity = '1';
+          }, 100);
+        });
+      });
+    </script>
   </body>
 </html>

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Test Element - Remove after verification -->
+<div class="alert alert-success">
+    <i class="fas fa-check-circle me-2"></i>Template is loading correctly!
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Search Filters -->
+        <div class="col-md-3">
+            <div class="search-filters">
+                <h5 class="search-filters-title">Filter Results</h5>
+                <form method="GET" action="{% url 'search_listing' %}">
+                    <div class="search-filters-group">
+                        <label class="search-filters-label" for="service">Service Type</label>
+                        <select name="service" id="service" class="search-filters-select">
+                            <option value="">All Services</option>
+                            <option value="general-handyman">General Handyman</option>
+                            <option value="furniture-assembly">Furniture Assembly</option>
+                            <option value="help-moving">Help Moving</option>
+                            <option value="tv-mounting">TV Mounting</option>
+                            <option value="painting">Painting</option>
+                            <option value="disinfecting-services">Disinfecting Services</option>
+                            <option value="ikea-services">IKEA Services</option>
+                        </select>
+                    </div>
+                    <div class="search-filters-group">
+                        <label class="search-filters-label" for="rating">Minimum Rating</label>
+                        <select name="rating" id="rating" class="search-filters-select">
+                            <option value="">Any Rating</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="3">3+ Stars</option>
+                            <option value="2">2+ Stars</option>
+                        </select>
+                    </div>
+                    <div class="search-filters-group">
+                        <label class="search-filters-label" for="price">Price Range</label>
+                        <select name="price" id="price" class="search-filters-select">
+                            <option value="">Any Price</option>
+                            <option value="0-50">$0 - $50</option>
+                            <option value="50-100">$50 - $100</option>
+                            <option value="100-200">$100 - $200</option>
+                            <option value="200+">$200+</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Search Results</h2>
+                <span class="text-muted">{{ handymen|length }} results found</span>
+            </div>
+
+            {% if handymen %}
+                {% for handyman in handymen %}
+                    <div class="search-listing fade-in">
+                        <div class="search-listing-header">
+                            {% if handyman.handyman_image %}
+                                <img src="{{ handyman.handyman_image.url }}" alt="{{ handyman.user.username }}" class="search-listing-avatar">
+                            {% else %}
+                                <img src="{% static 'img/default_profile.png' %}" alt="Default Profile" class="search-listing-avatar">
+                            {% endif %}
+                            <div class="search-listing-info">
+                                <h3 class="search-listing-name">{{ handyman.user.username }}</h3>
+                                <p class="search-listing-title">{{ handyman.service_type }}</p>
+                                <div class="search-listing-rating">
+                                    <div class="search-listing-stars">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= handyman.rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="search-listing-reviews">({{ handyman.reviews_count }} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="search-listing-details">
+                            <div class="search-listing-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ handyman.location }}</span>
+                            </div>
+                            <div class="search-listing-detail">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Starting from ${{ handyman.hourly_rate }}/hour</span>
+                            </div>
+                            <div class="search-listing-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>Available {{ handyman.availability }}</span>
+                            </div>
+                            <div class="search-listing-detail">
+                                <i class="fas fa-check-circle"></i>
+                                <span>{{ handyman.completed_jobs }} jobs completed</span>
+                            </div>
+                        </div>
+
+                        <p class="search-listing-description">
+                            {{ handyman.bio|truncatewords:30 }}
+                        </p>
+
+                        <div class="search-listing-actions">
+                            <a href="{% url 'handyman-profile' handyman.user.id %}" class="search-listing-button search-listing-button-secondary">
+                                <i class="fas fa-user"></i>View Profile
+                            </a>
+                            <a href="{% url 'booking' handyman.user.id %}" class="search-listing-button search-listing-button-primary">
+                                <i class="fas fa-calendar-check"></i>Book Now
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No handymen found matching your criteria.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

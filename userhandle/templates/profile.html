@@ -2,159 +2,162 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-
-{% block body %}
-
-<nav
-class="navbar navbar-expand-md bg-light navbar-light"
-style="padding: 10px 70px 10px 70px !important"
->
-
-<a class="navbar-brand" href="{% url 'index' %}">Kwik-FixR</a>
-
-
-<button
-  class="navbar-toggler"
-  type="button"
-  data-toggle="collapse"
-  data-target="#collapsibleNavbar"
->
-  <span class="navbar-toggler-icon"></span>
-</button>
-
-
-<div class="collapse navbar-collapse" id="collapsibleNavbar">
-  <ul class="navbar-nav ml-auto">
-    {% if user.is_authenticated and user.is_customer%}
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'previous-booking' %}">My Bookings</a>
-    </li>
-    {% endif %}
-    <li class="nav-item dropdown">
-      <div class="nav-item dropdown">
-        <a
-          href="#"
-          class="nav-link dropdown-toggle"
-          data-toggle="dropdown"
-          >Services</a
-        >
-        <div class="dropdown-menu">
-          <a href="{% url 'general-handyman' %}" class="dropdown-item">General Handyman</a>
-          <a href="{% url 'furniture-assembly' %}" class="dropdown-item">Furniture Assembly</a>
-          <a href="{% url 'help-moving' %}" class="dropdown-item">Help Moving</a>
-          <a href="{% url 'tv-mounting' %}" class="dropdown-item">TV Mounting</a>
-          <a href="{% url 'painting' %}" class="dropdown-item">Painting</a>
-          <a href="{% url 'disinfecting-services' %}" class="dropdown-item">Disinfecting Services</a>
-          <a href="{% url 'ikea-services' %}" class="dropdown-item">IKEA Services</a>
-          <a href="{% url 'all-services' %}" class="dropdown-item">All Services</a>
-
-      </div>
-      </div>
-    </li>
-
-    {% if user.is_anonymous %}
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'handyman-login' %}">Sign up / Log in</a>
-    </li>
-    <li class="nav-item become">
-      <a class="nav-link" href="{% url 'handyman-registration' %}"
-        ><button type="button" class="btn btn-outline-success tasker">
-          Become a Tasker
-        </button>
-      </a>
-    </li>
-    {% elif user.is_authenticated %}
-
-    <li class="nav-item dropdown">
-      <style>
-        .avatar {
-          vertical-align: middle;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-        }
-        </style>
-      
-      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        {% if user.handyman_image %}
-        <img src="{{user.handyman_image.url}}" alt="Avatar" class="avatar">
-        {{user}}
-        {% else %}
-        <img src="{% static 'img/default_profile.png' %}" alt="Avatar" class="avatar">
-        {{user}}
-      </a>
-      {% endif %}
-      <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-        {% if user.is_FixR %}
-        <a class="dropdown-item" href="{% url 'handyman-profile' user.id %}">Profile</a>
-        {% elif user.is_customer %}
-        <a class="dropdown-item" href="{% url 'customer-profile' user.id %}">Profile</a>
-        {% endif %}
-        <a class="dropdown-item" href="{% url 'handyman-logout' %}">Logout</a>
-      </div>
-    </li>
-    {% endif %}
-  </ul>
-</div>
-</nav>
-
-
-
-
-{% if user.is_authenticated %}
-<div class="wrapper" >
-  <div class="user-prof user-profile-test row" >
-    <div class="top-nav top-nav-test">
-      <div class="row mt-4" style="margin: 0">
-        <div class="content col-8">
-          <h1 class="content-header1">My Account</h1>
-          <div class="row person-info">
-            <a
-              href=""
-              style="border-bottom: 2px solid #1a76b0; color: #1a76b0"
-              >Personal Information</a
-            ><a href="{% url 'change-password' %}">Change Password</a>
-          </div>
-          <div class="fields-form-4">
-            <form method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              {{form|crispy}}
-              <input
-                class="save-person-info"
-                type="submit"
-                value="SAVE CHANGES"
-              />
-            </form>
-          </div>
+{% block content %}
+<div class="profile-container">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar-container">
+                {% if user.handyman_image %}
+                    <img src="{{ user.handyman_image.url }}" alt="{{ user.username }}" class="profile-avatar" id="preview-avatar">
+                {% else %}
+                    <img src="{% static 'img/default_profile.png' %}" alt="Default Profile" class="profile-avatar" id="preview-avatar">
+                {% endif %}
+                <label for="profile-image-upload" class="profile-avatar-upload" title="Change profile picture">
+                    <i class="fas fa-camera"></i>
+                </label>
+            </div>
+            <h1>Hi</h1>
+            <div class="profile-info">
+                <h1 class="profile-name">{{ user.firstname }} {{ user.lastname }}</h1>
+                <p class="profile-role">
+                    {% if user.is_FixR %}
+                        Professional Handyman
+                    {% elif user.is_customer %}
+                        Customer
+                    {% endif %}
+                </p>
+                {% if user.is_FixR %}
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">{{ completed_jobs|default:"0" }}</div>
+                            <div class="profile-stat-label">Jobs Completed</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">{{ rating|default:"0.0" }}</div>
+                            <div class="profile-stat-label">Rating</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value">{{ reviews_count|default:"0" }}</div>
+                            <div class="profile-stat-label">Reviews</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
-        
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <div class="profile-tabs">
+                <div class="profile-tab active">Personal Information</div>
+                <a href="{% url 'change-password' %}" class="profile-tab">Change Password</a>
+            </div>
 
-      </div>
+            <form method="post" enctype="multipart/form-data" id="profile-form">
+                {% csrf_token %}
+                
+                <!-- Hidden file input -->
+                <input type="file" id="profile-image-upload" name="handyman_image" accept="image/*" style="display: none;">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-user me-2"></i>Basic Information
+                            </h3>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">First Name</label>
+                                {{ form.firstname|as_crispy_field }}
+                            </div>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">Last Name</label>
+                                {{ form.lastname|as_crispy_field }}
+                            </div>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">Contact</label>
+                                {{ form.contact|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user.is_FixR %}
+                    <div class="col-md-6">
+                        <div class="profile-section">
+                            <h3 class="profile-section-title">
+                                <i class="fas fa-tools me-2"></i>Professional Information
+                            </h3>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">Bio</label>
+                                {{ form.bio|as_crispy_field }}
+                            </div>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">Services</label>
+                                {{ form.handyman_services|as_crispy_field }}
+                            </div>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">Price</label>
+                                {{ form.price|as_crispy_field }}
+                            </div>
+                            <div class="profile-form-group">
+                                <label class="profile-form-label">Service Tags</label>
+                                {{ form.service_tags|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="profile-save-button">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    
-  </div>
-  
 </div>
 
 <script>
-  $(document).ready(function () {
-    $("#sidebarCollapse").on("click", function () {
-      $("#sidebar").toggleClass("active");
+    // Handle profile image upload
+    document.querySelector('.profile-avatar-upload').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('profile-image-upload').click();
     });
-  });
+
+    // Preview image before upload
+    document.getElementById('profile-image-upload').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            const preview = document.getElementById('preview-avatar');
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Form submission with image
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+        const imageInput = document.getElementById('profile-image-upload');
+        if (imageInput.files.length > 0) {
+            const file = imageInput.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (file.size > maxSize) {
+                e.preventDefault();
+                alert('Image size should be less than 5MB');
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                e.preventDefault();
+                alert('Please upload an image file');
+                return;
+            }
+        }
+    });
 </script>
-<script>
-  $(".toggle-password").click(function () {
-    $(this).toggleClass("fa-eye fa-eye-slash");
-    var input = $($(this).attr("toggle"));
-    if (input.attr("type") == "password") {
-      input.attr("type", "text");
-    } else {
-      input.attr("type", "password");
-    }
-  });
-</script>
-{% endif%}
 {% endblock %}
 
