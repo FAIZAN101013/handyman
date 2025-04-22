@@ -1,0 +1,1 @@
+web: gunicorn HandyMan.wsgi:application --log-file - 

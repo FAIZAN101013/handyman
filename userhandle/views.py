@@ -200,6 +200,12 @@ class ProfileEditViewHandyman(UpdateView):
     template_name = 'profile.html'
     success_url = reverse_lazy('index')
 
+    def form_valid(self, form):
+        if 'handyman_image' in self.request.FILES:
+            form.instance.handyman_image = self.request.FILES['handyman_image']
+        messages.success(self.request, 'Profile updated successfully!')
+        return super().form_valid(form)
+
 
 # below is the profile edit logic built by generic view of django
 # class ProfileEditViewcustomer inherits the UpdateView and edits the field mentioned in the "fields"
@@ -209,6 +215,12 @@ class ProfileEditViewCustomer(UpdateView):
     fields = ['firstname', 'lastname', 'contact', 'handyman_image']
     template_name = 'profile.html'
     success_url = reverse_lazy('index')
+
+    def form_valid(self, form):
+        if 'handyman_image' in self.request.FILES:
+            form.instance.handyman_image = self.request.FILES['handyman_image']
+        messages.success(self.request, 'Profile updated successfully!')
+        return super().form_valid(form)
 
 
 # HandymanSearch looks for services, category and postcode from the home page and filters HandymanUser with the following data
@@ -339,7 +351,7 @@ def HandymanAccept(request, id):
     subject = 'Booking Accepted!'
     plain_message = f"FixR, {request.user}, has accepted the Booking Request made by you on {services.duedate}."
     plain_message_fixr = f"You have successfuly accepted the booking made by {services.customer}."
-    from_email = f'Kwik-FixR <{request.user.email}>'
+    from_email = f'Handy Man <{request.user.email}>'
     to = str(f'{services.customer.email}')
     to_fixr = str(f'{services.FixR.email}')
 
@@ -364,7 +376,7 @@ def HandymanDecline(request, id):
     subject = 'Booking Declined!'
     plain_message = f"FixR, {request.user}, has declined the Booking Request made by you on {services.duedate}."
     plain_message_fixr = f'You have declined the booking made by {services.customer}'
-    from_email = f'Kwik-FixR <{request.user.email}>'
+    from_email = f'Handy Man <{request.user.email}>'
     to = str(f'{services.customer.email}') 
     to_fixr = str(f'{services.FixR.email}')
     if services.is_declined == False:
@@ -384,7 +396,7 @@ def HandymanComplete(request, id):
     subject = 'Booking complete!'
     plain_message = f"FixR, {service.FixR}, has completed the Booking Request made by you on {service.duedate}. You may give ratings to the FixR now."
     plain_message_fixr = f'You have completed the booking made by {service.customer}.'
-    from_email = f'Kwik-FixR <{request.user.email}>'
+    from_email = f'Handy Man <{request.user.email}>'
     to = str(f'{service.customer.email}') 
     to_fixr = str(f'{service.FixR.email}')
     if service.is_completed == False:
@@ -454,7 +466,7 @@ def BookService(request, id):
                 html_message = render_to_string('booked_mail.html', context)
                 plain_message = strip_tags(html_message)
                 plain_message_to_customer = f'Booking Request successfull to {service.firstname} {service.lastname}'
-                from_email = f'Kwik-is_FixR <{user.email}>'
+                from_email = f'Handy Man <{user.email}>'
                 to_FixR = str(f'{service.email}')
                 to_customer = str(f'{user.email}')
                 mail.send_mail(subject, plain_message, from_email, [to_FixR], html_message=html_message)
